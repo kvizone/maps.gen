@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferramentas e Metodologias</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  
+  <!-- Patch de compatibilidade para UMD -->
+  <script>window.react = window.React;</script>
+
+  <!-- Lucide Icons (React UMD) -->
+  <script src="https://unpkg.com/lucide-react@0.284.0/dist/umd/lucide-react.min.js"></script>
+
+  <!-- Phosphor Icons (Para o Diagrama Anatomia do Prompt) -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Alias Global para Ícones -->
+  <script>window.lucideReact = window.lucideReact || window.LucideReact || window.lucide || {};</script>
+
+  <!-- Tailwind CSS & Babel -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    html, body { -ms-overflow-style: none; scrollbar-width: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Estilos específicos para o diagrama "Anatomia do Prompt" */
+    .prompt-diagram {
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .box-bg { background-color: #0f1015; }
+    .theme-purple { border-color: rgba(139, 92, 246, 0.3); color: #a78bfa; }
+    .theme-blue { border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; }
+    .theme-cyan { border-color: rgba(6, 182, 212, 0.3); color: #22d3ee; }
+    .theme-green { border-color: rgba(34, 197, 94, 0.3); color: #4ade80; }
+    .theme-amber { border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+    .theme-orange { border-color: rgba(249, 115, 22, 0.3); color: #fb923c; }
+    .theme-pink { border-color: rgba(236, 72, 153, 0.3); color: #f472b6; }
+    .ring-outer { border: 1px dashed rgba(255, 255, 255, 0.05); }
+    .ring-inner { border: 1px dashed rgba(255, 255, 255, 0.15); }
+  </style>
+</head>
+<body class="bg-[#131314] text-zinc-100 antialiased min-h-screen">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    
+    // Desestruturando Ícones
+    const { 
+      Target, Users, LayoutGrid, Filter, ArrowLeft, CheckCircle2, Copy,
+      Check, Search, Sparkles, Wand2, BookOpen, ExternalLink, ChevronRight,
+      Presentation, Gem, ListChecks, Compass, BarChart2, Calculator, Instagram,
+      Linkedin, Clock, PenTool, FileText, Zap, Rocket, Lightbulb, Monitor,
+      MessageSquare, Repeat, Crown, Lock, List
+    } = lucideReact;
+
+    // --- Utilitário de Cópia ---
+    const copyTextToClipboard = (text) => {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Erro ao copiar', err);
+      }
+      document.body.removeChild(textArea);
+    };
+
+    // --- UI Components Reutilizáveis ---
+
+    const CardButton = ({ icon: Icon, title, subtitle, onClick, colorClass }) => (
+      <button 
+        onClick={onClick}
+        className="flex flex-row items-center p-4 hover:bg-[#232325] rounded-2xl transition-all duration-200 text-left group w-full border border-transparent hover:border-white/5"
+      >
+        <div className={`p-3 rounded-xl mr-4 group-hover:scale-105 transition-transform flex-shrink-0 ${colorClass}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-zinc-100 font-semibold text-[15px] mb-1">{title}</h3>
+          <p className="text-zinc-400 text-[13px] leading-relaxed">{subtitle}</p>
+        </div>
+      </button>
+    );
+
+    const CategoryHeader = ({ title }) => (
+      <div className="mt-8 mb-4 border-b border-white/10 pb-3">
+        <h2 className="text-zinc-200 font-semibold text-lg">{title}</h2>
+      </div>
+    );
+
+    const ExternalResourceCard = ({ icon: Icon, title, subtitle, link, buttonText, colorClass }) => (
+      <a 
+        href={link} target="_blank" rel="noopener noreferrer"
+        className="flex flex-row items-center p-4 bg-[#1A1A1C] hover:bg-[#232325] rounded-2xl transition-all duration-200 text-left group w-full border border-transparent hover:border-white/5 mb-3"
+      >
+        <div className={`p-3 rounded-xl mr-4 group-hover:scale-105 transition-transform flex-shrink-0 ${colorClass}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div className="flex-1 pr-4">
+          <h3 className="text-zinc-100 font-semibold text-[15px] mb-1">{title}</h3>
+          <p className="text-zinc-400 text-[13px] leading-relaxed">{subtitle}</p>
+        </div>
+        <div className="hidden sm:flex items-center text-xs font-semibold text-white bg-white/5 px-4 py-2.5 rounded-xl group-hover:bg-white/10 transition-colors">
+          {buttonText} <ExternalLink className="w-3.5 h-3.5 ml-2" />
+        </div>
+      </a>
+    );
+
+    const InternalResourceCard = ({ icon: Icon, title, subtitle, onClick, buttonText, colorClass }) => (
+      <button 
+        onClick={onClick}
+        className="flex flex-row items-center p-4 bg-[#1A1A1C] hover:bg-[#232325] rounded-2xl transition-all duration-200 text-left group w-full border border-transparent hover:border-white/5 mb-3"
+      >
+        <div className={`p-3 rounded-xl mr-4 group-hover:scale-105 transition-transform flex-shrink-0 ${colorClass}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div className="flex-1 pr-4">
+          <h3 className="text-zinc-100 font-semibold text-[15px] mb-1">{title}</h3>
+          <p className="text-zinc-400 text-[13px] leading-relaxed">{subtitle}</p>
+        </div>
+        <div className="hidden sm:flex items-center text-xs font-semibold text-white bg-white/5 px-4 py-2.5 rounded-xl group-hover:bg-white/10 transition-colors">
+          {buttonText} <ChevronRight className="w-3.5 h-3.5 ml-2" />
+        </div>
+      </button>
+    );
+
+    const BlogPostCard = ({ category, title, link }) => (
+      <a 
+        href={link} target="_blank" rel="noopener noreferrer"
+        className="flex flex-col p-5 bg-[#1A1A1C] hover:bg-[#232325] rounded-2xl transition-all duration-200 text-left group border border-transparent hover:border-white/5 h-full"
+      >
+        <span className="text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-3 block">{category}</span>
+        <h4 className="text-zinc-100 font-medium text-[14px] leading-snug mb-5 flex-1 group-hover:text-sky-400 transition-colors">{title}</h4>
+        <div className="flex items-center text-xs font-semibold text-zinc-400 group-hover:text-sky-400 transition-colors mt-auto">
+          Ler artigo <ChevronRight className="w-3 h-3 ml-1" />
+        </div>
+      </a>
+    );
+
+    const InputField = ({ label, placeholder, value, onChange, type = "text", multiline = false, extraClasses = "" }) => {
+      const baseClasses = `w-full bg-[#1A1A1C] border border-transparent rounded-xl p-4 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-white/10 focus:bg-[#232325] transition-all text-sm ${extraClasses}`;
+      return (
+        <div className="mb-5">
+          <label className="block text-zinc-300 text-sm font-medium mb-2 ml-1">{label}</label>
+          {multiline ? (
+            <textarea className={`${baseClasses} resize-none h-28`} placeholder={placeholder} value={value} onChange={onChange} />
+          ) : (
+            <input type={type} className={baseClasses} placeholder={placeholder} value={value} onChange={onChange} />
+          )}
+        </div>
+      );
+    };
+
+    const ResultCard = ({ title, content, isHighlight = false }) => {
+      const [copied, setCopied] = useState(false);
+      const handleCopy = () => {
+        if(!content) return;
+        copyTextToClipboard(content);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+      return (
+        <div className={`bg-[#1A1A1C] rounded-2xl p-5 mb-4 group relative hover:bg-[#232325] transition-colors ${isHighlight ? 'border border-sky-500/30 bg-sky-500/5' : ''}`}>
+          <div className="flex justify-between items-start mb-2">
+            <h4 className={`${isHighlight ? 'text-sky-400' : 'text-zinc-400'} text-xs font-semibold`}>{title}</h4>
+            <button onClick={handleCopy} className="text-zinc-500 hover:text-white transition-colors p-1" title="Copiar trecho">
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-zinc-100 text-sm whitespace-pre-wrap leading-relaxed">{content || "Não preenchido."}</p>
+        </div>
+      );
+    };
+
+    const CopyAllButton = ({ textToCopy }) => {
+      const [copied, setCopied] = useState(false);
+      const handleCopy = () => {
+        copyTextToClipboard(textToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      };
+      return (
+        <button onClick={handleCopy} className={`w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 mb-3 ${copied ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white text-black hover:bg-zinc-200'}`}>
+          {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+          {copied ? 'Copiado para a área de transferência!' : 'Copiar Resultado Completo'}
+        </button>
+      );
+    };
+
+    const InfoCard = ({ step, title, content }) => {
+      const lines = typeof content === 'string' ? content.replace(/\\n/g, '\n').split('\n') : [];
+      return (
+        <div className="bg-[#1A1A1C] rounded-2xl p-6 mb-4 group hover:bg-[#232325] transition-colors border border-transparent hover:border-white/5">
+          {step && <span className="text-sky-400 text-[10px] font-bold tracking-wider uppercase mb-2 block">{step}</span>}
+          <h4 className="text-zinc-100 font-semibold mb-2 text-[15px]">{title}</h4>
+          <div className="text-zinc-400 text-[14px] leading-relaxed">
+            {lines.map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i < lines.length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    const ToolLayout = ({ title, description, onBack, children }) => (
+      <div className="flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 max-w-3xl mx-auto w-full pt-4 min-h-screen">
+        <div className="flex items-center mb-6 px-1">
+          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#232325] transition-colors mr-4 flex-shrink-0">
+            <ArrowLeft className="w-5 h-5 text-zinc-300" />
+          </button>
+          <div>
+            <h2 className="text-white text-xl font-semibold">{title}</h2>
+            {description && <p className="text-zinc-400 text-sm mt-1">{description}</p>}
+          </div>
+        </div>
+        <div className="flex-1 pb-20 px-1">{children}</div>
+      </div>
+    );
+
+    // --- Componentes Design Sprint ---
+
+    const DsSection = ({ title, icon: Icon, children, color = "text-zinc-300", bg = "bg-[#232325]" }) => (
+      <div className="mb-12">
+        <div className="flex items-center gap-3 mb-6">
+          {Icon && (
+            <div className={`p-2 rounded-lg ${bg}`}>
+              <Icon className={`w-5 h-5 ${color}`} />
+            </div>
+          )}
+          <h2 className="text-2xl font-bold text-white tracking-tight">{title}</h2>
+        </div>
+        {children}
+      </div>
+    );
+
+    const DsCard = ({ title, icon: Icon, children, className = "" }) => (
+      <div className={`bg-[#1A1A1C] border border-white/5 rounded-2xl p-6 hover:bg-[#232325] transition-colors ${className}`}>
+        {Icon && (
+          <div className="flex items-center gap-3 mb-4">
+            <Icon className="w-5 h-5 text-zinc-400" />
+            <h3 className="text-zinc-100 font-semibold text-[15px]">{title}</h3>
+          </div>
+        )}
+        {!Icon && title && <h3 className="text-zinc-100 font-semibold text-[15px] mb-4">{title}</h3>}
+        <div className="text-zinc-400 text-sm leading-relaxed">{children}</div>
+      </div>
+    );
+
+    const DsStepCard = ({ number, title, description, icon: Icon, colorHex }) => (
+      <div className="flex flex-col md:flex-row gap-6 bg-[#1A1A1C] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-white/10 transition-all">
+        <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: colorHex }}></div>
+        <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-2xl" style={{ backgroundColor: `${colorHex}15`, color: colorHex }}>
+          <span className="text-2xl font-bold">#{number}</span>
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon className="w-5 h-5" style={{ color: colorHex }} />
+            <h3 className="text-white font-semibold text-lg">{title}</h3>
+          </div>
+          <p className="text-zinc-400 text-sm leading-relaxed">{description}</p>
+        </div>
+      </div>
+    );
+
+    const DsTag = ({ children }) => (
+      <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-zinc-300 text-xs font-medium">{children}</span>
+    );
+
+    // ==========================================
+    // GERADORES DE FERRAMENTAS
+    // ==========================================
+
+    const Tool5W2H = ({ onBack }) => {
+      const [isGenerated, setIsGenerated] = useState(false);
+      const [data, setData] = useState({ projeto: '', problema: '', what: '', why: '', where: '', when: '', who: '', how: '', howMuch: '' });
+      const handleChange = (field) => (e) => setData({ ...data, [field]: e.target.value });
+
+      const formatAllText = () => `--- MAPA 5W2H ---\n\nProjeto: ${data.projeto || 'N/A'}\nProblema: ${data.problema || 'N/A'}\nO que (What): ${data.what || 'N/A'}\nPor que (Why): ${data.why || 'N/A'}\nOnde (Where): ${data.where || 'N/A'}\nQuando (When): ${data.when || 'N/A'}\nQuem (Who): ${data.who || 'N/A'}\nComo (How): ${data.how || 'N/A'}\nQuanto (How Much): ${data.howMuch || 'N/A'}`;
+
+      if (isGenerated) {
+        return (
+          <ToolLayout title="Resultado 5W2H" onBack={onBack}>
+            <div className="space-y-2">
+              <ResultCard title="Projeto" content={data.projeto} />
+              <ResultCard title="Problema" content={data.problema} />
+              <ResultCard title="What (O que faz?)" content={data.what} />
+              <ResultCard title="Why (Por que faz?)" content={data.why} />
+              <ResultCard title="Where (Onde executa?)" content={data.where} />
+              <ResultCard title="When (Quando executa?)" content={data.when} />
+              <ResultCard title="Who (Quem faz?)" content={data.who} />
+              <ResultCard title="How (Como faz?)" content={data.how} />
+              <ResultCard title="How Much (Quanto custa?)" content={data.howMuch} />
+            </div>
+            <div className="mt-6">
+              <CopyAllButton textToCopy={formatAllText()} />
+              <button onClick={() => setIsGenerated(false)} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325] transition-colors">Editar Informações</button>
+            </div>
+          </ToolLayout>
+        );
+      }
+
+      return (
+        <ToolLayout title="Gerador 5W2H" description="Organize sua marca e projetos, entenda melhor o que é e o que faz para ter mais assertividade na hora de comunicar." onBack={onBack}>
+          
+          {/* DIAGRAMA 5W2H EM HTML */}
+          <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-8 px-4 mt-6 mb-8 flex flex-col items-center relative overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-full bg-[#B983FF]/5 blur-3xl rounded-full pointer-events-none"></div>
+            
+            <div className="flex gap-2 sm:gap-4 mb-4 flex-wrap justify-center relative z-10 w-full max-w-[450px]">
+              <div className="bg-[#B983FF]/10 text-[#B983FF] border border-[#B983FF]/20 rounded-xl px-3 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 min-w-[70px] hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">What</span>O que?</div>
+              <div className="bg-[#B983FF]/10 text-[#B983FF] border border-[#B983FF]/20 rounded-xl px-3 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 min-w-[70px] hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">Why</span>Por que?</div>
+              <div className="bg-[#B983FF]/10 text-[#B983FF] border border-[#B983FF]/20 rounded-xl px-3 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 min-w-[70px] hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">Where</span>Onde?</div>
+              <div className="bg-[#B983FF]/10 text-[#B983FF] border border-[#B983FF]/20 rounded-xl px-3 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 min-w-[70px] hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">When</span>Quando?</div>
+              <div className="bg-[#B983FF]/10 text-[#B983FF] border border-[#B983FF]/20 rounded-xl px-3 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 min-w-[70px] hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">Who</span>Quem?</div>
+            </div>
+            
+            <div className="w-full max-w-[200px] border-t border-dashed border-zinc-700 my-2 relative z-10"></div>
+            
+            <div className="flex gap-2 sm:gap-4 mt-4 justify-center relative z-10 w-full max-w-[250px]">
+              <div className="bg-[#4D96FF]/10 text-[#4D96FF] border border-[#4D96FF]/20 rounded-xl px-4 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">How</span>Como?</div>
+              <div className="bg-[#4D96FF]/10 text-[#4D96FF] border border-[#4D96FF]/20 rounded-xl px-4 py-2 font-bold text-xs sm:text-sm flex flex-col items-center flex-1 hover:scale-105 transition-transform"><span className="text-[9px] opacity-70 uppercase tracking-widest font-normal mb-0.5">How Much</span>Quanto?</div>
+            </div>
+          </div>
+
+          <InputField label="Projeto" placeholder="Nome do projeto" value={data.projeto} onChange={handleChange('projeto')} />
+          <InputField label="Problema" placeholder="Qual problema você percebeu e seu projeto visa resolver?" value={data.problema} onChange={handleChange('problema')} multiline />
+          <InputField label="What (O que?)" placeholder="Descreva o que a solução faz" value={data.what} onChange={handleChange('what')} />
+          <InputField label="Why (Por que?)" placeholder="Porque decidiu fazer" value={data.why} onChange={handleChange('why')} />
+          <InputField label="Where (Onde?)" placeholder="Local ou ambiente (ex: online, sede)..." value={data.where} onChange={handleChange('where')} />
+          <InputField label="When (Quando?)" placeholder="Prazos, datas, tempo ou período" value={data.when} onChange={handleChange('when')} />
+          <InputField label="Who (Quem?)" placeholder="Responsável ou equipe" value={data.who} onChange={handleChange('who')} />
+          <InputField label="How (Como?)" placeholder="Metodologia ou processo" value={data.how} onChange={handleChange('how')} multiline />
+          <InputField label="How Much (Quanto?)" placeholder="Quanto custa, despesas ou média do ticket" value={data.howMuch} onChange={handleChange('howMuch')} />
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 mt-4">
+            <CheckCircle2 className="w-4 h-4" /> Gerar Mapa 5W2H
+          </button>
+        </ToolLayout>
+      );
+    };
+
+    const ToolMapaEmpatia = ({ onBack }) => {
+      const [isGenerated, setIsGenerated] = useState(false);
+      const [data, setData] = useState({ persona: '', pensa: '', ouve: '', ve: '', fala: '', dores: '', ganhos: '' });
+      const handleChange = (field) => (e) => setData({ ...data, [field]: e.target.value });
+
+      const formatAllText = () => `--- MAPA DE EMPATIA ---\n\nPersona: ${data.persona || 'N/A'}\nPensa e Sente: ${data.pensa || 'N/A'}\nO que Ouve: ${data.ouve || 'N/A'}\nO que Vê: ${data.ve || 'N/A'}\nFala e Faz: ${data.fala || 'N/A'}\n\nDores: ${data.dores || 'N/A'}\nGanhos: ${data.ganhos || 'N/A'}`;
+
+      if (isGenerated) {
+        return (
+          <ToolLayout title="Mapa de Empatia" onBack={onBack}>
+             <ResultCard title="Persona" content={data.persona} />
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <ResultCard title="Pensa e Sente" content={data.pensa} />
+                <ResultCard title="O que Ouve" content={data.ouve} />
+                <ResultCard title="O que Vê" content={data.ve} />
+                <ResultCard title="Fala e Faz" content={data.fala} />
+             </div>
+             <ResultCard title="Dores (Frustrações)" content={data.dores} />
+             <ResultCard title="Ganhos (Necessidades)" content={data.ganhos} />
+             <div className="mt-6">
+                <CopyAllButton textToCopy={formatAllText()} />
+                <button onClick={() => setIsGenerated(false)} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Editar Informações</button>
+             </div>
+          </ToolLayout>
+        );
+      }
+
+      return (
+        <ToolLayout title="Mapa de Empatia" description="Este recurso detalha o universo do seu público-alvo para facilitar a criação de conexões mais humanas e assertivas." onBack={onBack}>
+          
+          {/* DIAGRAMA MAPA DE EMPATIA EM HTML */}
+          <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-8 px-4 mt-6 mb-8 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-full bg-[#4D96FF]/5 blur-3xl rounded-full pointer-events-none"></div>
+            
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-[350px] relative z-10">
+              <div className="col-start-2 flex justify-center">
+                  <div className="bg-[#B983FF]/10 text-[#B983FF] text-[10px] sm:text-xs font-bold px-2 py-3 rounded-xl border border-[#B983FF]/20 text-center w-full flex flex-col items-center justify-center shadow-sm hover:scale-105 transition-transform"><span className="opacity-70 text-[8px] uppercase tracking-widest block mb-1">Pensa e Sente</span>💭</div>
+              </div>
+              <div className="col-start-1 flex justify-center items-center">
+                  <div className="bg-[#4D96FF]/10 text-[#4D96FF] text-[10px] sm:text-xs font-bold px-2 py-3 rounded-xl border border-[#4D96FF]/20 text-center w-full flex flex-col items-center justify-center shadow-sm hover:scale-105 transition-transform"><span className="opacity-70 text-[8px] uppercase tracking-widest block mb-1">Ouve</span>📣</div>
+              </div>
+              <div className="col-start-2 flex justify-center items-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#232325] flex items-center justify-center border-4 border-[#1A1A1C] shadow-lg z-20">
+                     <Users className="w-6 h-6 text-zinc-300" />
+                  </div>
+              </div>
+              <div className="col-start-3 flex justify-center items-center">
+                  <div className="bg-[#4D96FF]/10 text-[#4D96FF] text-[10px] sm:text-xs font-bold px-2 py-3 rounded-xl border border-[#4D96FF]/20 text-center w-full flex flex-col items-center justify-center shadow-sm hover:scale-105 transition-transform"><span className="opacity-70 text-[8px] uppercase tracking-widest block mb-1">Vê</span>👀</div>
+              </div>
+              <div className="col-start-2 flex justify-center">
+                  <div className="bg-[#6BCB77]/10 text-[#6BCB77] text-[10px] sm:text-xs font-bold px-2 py-3 rounded-xl border border-[#6BCB77]/20 text-center w-full flex flex-col items-center justify-center shadow-sm hover:scale-105 transition-transform"><span className="opacity-70 text-[8px] uppercase tracking-widest block mb-1">Fala e Faz</span>🗣️</div>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 sm:gap-3 w-full max-w-[350px] mt-4 pt-4 border-t border-dashed border-white/10 relative z-10">
+                <div className="flex-1 bg-[#FF6B6B]/10 text-[#FF6B6B] text-[10px] sm:text-xs font-bold px-2 py-3 rounded-xl border border-[#FF6B6B]/20 text-center flex flex-col items-center shadow-sm hover:scale-105 transition-transform"><span className="opacity-70 text-[8px] uppercase tracking-widest block mb-1">Dores</span>😫</div>
+                <div className="flex-1 bg-[#FFD93D]/10 text-[#FFD93D] text-[10px] sm:text-xs font-bold px-2 py-3 rounded-xl border border-[#FFD93D]/20 text-center flex flex-col items-center shadow-sm hover:scale-105 transition-transform"><span className="opacity-70 text-[8px] uppercase tracking-widest block mb-1">Ganhos</span>🤩</div>
+            </div>
+          </div>
+
+          <InputField label="Persona" placeholder="Nome ou tipo de persona a ser trabalhada" value={data.persona} onChange={handleChange('persona')} />
+          <InputField label="Pensa e Sente" placeholder="O que costuma pensar e sentir em relação ao problema" value={data.pensa} onChange={handleChange('pensa')} multiline />
+          <InputField label="O que Escuta" placeholder="O que costuma ouvir das pessoas (ex. colegas, chefe, familiares)" value={data.ouve} onChange={handleChange('ouve')} multiline />
+          <InputField label="O que Vê" placeholder="Ambiente, mercado, trabalho, oportunidades..." value={data.ve} onChange={handleChange('ve')} multiline />
+          <InputField label="Fala e Faz" placeholder="Atitudes que toma para lidar com o problema" value={data.fala} onChange={handleChange('fala')} multiline />
+          <div className="flex flex-col sm:flex-row gap-0 sm:gap-4">
+            <div className="flex-1"><InputField label="Dores" placeholder="Medos e frustrações" value={data.dores} onChange={handleChange('dores')} /></div>
+            <div className="flex-1"><InputField label="Ganhos" placeholder="Sucesso, desejos e sonhos" value={data.ganhos} onChange={handleChange('ganhos')} /></div>
+          </div>
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-4 hover:bg-zinc-200 transition-colors">Gerar Mapa</button>
+        </ToolLayout>
+      );
+    };
+
+    const ToolMatrizCSD = ({ onBack }) => {
+      const [isGenerated, setIsGenerated] = useState(false);
+      const [data, setData] = useState({ projeto: '', certezas: '', suposicoes: '', duvidas: '' });
+      const handleChange = (field) => (e) => setData({ ...data, [field]: e.target.value });
+
+      const formatAllText = () => `--- MATRIZ CSD ---\n\nProjeto: ${data.projeto || 'N/A'}\n\nCertezas:\n${data.certezas || 'N/A'}\n\nSuposições:\n${data.suposicoes || 'N/A'}\n\nDúvidas:\n${data.duvidas || 'N/A'}`;
+
+      if (isGenerated) {
+        return (
+          <ToolLayout title="Matriz CSD" onBack={onBack}>
+             <ResultCard title="Projeto" content={data.projeto} />
+             <ResultCard title="Certezas" content={data.certezas} />
+             <ResultCard title="Suposições" content={data.suposicoes} />
+             <ResultCard title="Dúvidas" content={data.duvidas} />
+             <div className="mt-6">
+                <CopyAllButton textToCopy={formatAllText()} />
+                <button onClick={() => setIsGenerated(false)} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Editar Informações</button>
+             </div>
+          </ToolLayout>
+        );
+      }
+
+      return (
+        <ToolLayout title="Matriz CSD" description="Este framework separa fatos de hipóteses para trazer clareza sobre o que o time ainda precisa validar ou descobrir." onBack={onBack}>
+          <InputField label="Projeto" placeholder="Nome do projeto" value={data.projeto} onChange={handleChange('projeto')} />
+          <InputField label="Certezas" placeholder="O que já sabemos como fato absoluto? (1 por linha)" value={data.certezas} onChange={handleChange('certezas')} multiline />
+          <InputField label="Suposições" placeholder="O que achamos que sabemos? (Hipóteses)" value={data.suposicoes} onChange={handleChange('suposicoes')} multiline />
+          <InputField label="Dúvidas" placeholder="O que não sabemos e precisamos descobrir?" value={data.duvidas} onChange={handleChange('duvidas')} multiline />
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-4 hover:bg-zinc-200 transition-colors">Gerar Matriz</button>
+        </ToolLayout>
+      );
+    };
+
+    const ToolFunilVendas = ({ onBack }) => {
+      const [isGenerated, setIsGenerated] = useState(false);
+      const [data, setData] = useState({ campanha: '', topo: '', topoCanais: '', meio: '', meioCanais: '', fundo: '', fundoCanais: '', pos: '', posCanais: '' });
+      const handleChange = (field) => (e) => setData({ ...data, [field]: e.target.value });
+
+      const formatAllText = () => `--- FUNIL DE VENDAS ---\n\nCampanha: ${data.campanha || 'N/A'}\n\n[ TOPO - ATRAÇÃO ]\nEstratégia: ${data.topo || 'N/A'}\nCanais: ${data.topoCanais || 'N/A'}\n\n[ MEIO - CONSIDERAÇÃO ]\nEstratégia: ${data.meio || 'N/A'}\nCanais: ${data.meioCanais || 'N/A'}\n\n[ FUNDO - DECISÃO ]\nEstratégia: ${data.fundo || 'N/A'}\nCanais: ${data.fundoCanais || 'N/A'}\n\n[ PÓS-VENDA - FIDELIZAÇÃO ]\nEstratégia: ${data.pos || 'N/A'}\nCanais: ${data.posCanais || 'N/A'}`;
+
+      const FunnelResultCard = ({ stage, strategy, channels }) => (
+        <div className="bg-[#1A1A1C] rounded-2xl p-5 mb-4 group relative hover:bg-[#232325] transition-colors">
+          <div className="flex justify-between items-start mb-4"><h4 className="text-zinc-400 text-xs font-semibold">{stage}</h4></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><span className="text-zinc-500 text-[11px] block mb-1 font-medium">Estratégia</span><p className="text-zinc-100 text-sm whitespace-pre-wrap leading-relaxed">{strategy || "Não preenchido."}</p></div>
+            <div><span className="text-zinc-500 text-[11px] block mb-1 font-medium">Canais</span><p className="text-zinc-100 text-sm whitespace-pre-wrap leading-relaxed">{channels || "Não preenchido."}</p></div>
+          </div>
+        </div>
+      );
+
+      const FunnelInputRow = ({ stageName, stratPlaceholder, stratValue, onStratChange, chanValue, onChanChange }) => (
+        <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr_1fr] gap-3 sm:gap-4 mb-6 border-b border-white/5 pb-6 last:border-0 items-start">
+          <div className="font-medium text-white sm:pt-4 text-sm">{stageName}</div>
+          <div><label className="block text-zinc-400 text-xs mb-2 sm:hidden">Estratégia</label><textarea className="w-full bg-[#1A1A1C] border border-transparent rounded-xl p-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-white/10 focus:bg-[#232325] transition-all text-sm resize-none h-24" placeholder={stratPlaceholder} value={stratValue} onChange={onStratChange} /></div>
+          <div><label className="block text-zinc-400 text-xs mb-2 sm:hidden">Canais</label><textarea className="w-full bg-[#1A1A1C] border border-transparent rounded-xl p-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-white/10 focus:bg-[#232325] transition-all text-sm resize-none h-24" placeholder="Ex: Instagram, Ads, E-mail..." value={chanValue} onChange={onChanChange} /></div>
+        </div>
+      );
+
+      if (isGenerated) {
+        return (
+          <ToolLayout title="Funil de Vendas" onBack={onBack}>
+             <ResultCard title="Campanha" content={data.campanha} />
+             <FunnelResultCard stage="Topo (Atração)" strategy={data.topo} channels={data.topoCanais} />
+             <FunnelResultCard stage="Meio (Consideração)" strategy={data.meio} channels={data.meioCanais} />
+             <FunnelResultCard stage="Fundo (Decisão)" strategy={data.fundo} channels={data.fundoCanais} />
+             <FunnelResultCard stage="Pós-Venda (Fidelização)" strategy={data.pos} channels={data.posCanais} />
+             <div className="mt-6">
+                <CopyAllButton textToCopy={formatAllText()} />
+                <button onClick={() => setIsGenerated(false)} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Editar Informações</button>
+             </div>
+          </ToolLayout>
+        );
+      }
+
+      return (
+        <ToolLayout title="Funil de Vendas" description="Este modelo descreve o caminho do cliente entre o primeiro contato e a decisão final de uma compra." onBack={onBack}>
+          
+          {/* DIAGRAMA DO FUNIL DE VENDAS */}
+          <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-10 px-4 sm:px-8 mt-6 mb-8 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-full bg-[#FFD93D]/5 blur-3xl rounded-full pointer-events-none"></div>
+            <div className="w-full max-w-[340px] flex flex-col gap-3 relative z-10">
+              <div className="w-full h-14 bg-[#B983FF]/10 border border-[#B983FF]/20 rounded-2xl flex items-center justify-center transition-transform hover:scale-105 duration-300 shadow-[0_0_15px_rgba(185,131,255,0.05)] cursor-default">
+                <span className="text-[#B983FF] font-bold text-xs sm:text-sm tracking-widest uppercase">Topo (Atração)</span>
+              </div>
+              <div className="w-[85%] mx-auto h-14 bg-[#4D96FF]/10 border border-[#4D96FF]/20 rounded-2xl flex items-center justify-center transition-transform hover:scale-105 duration-300 shadow-[0_0_15px_rgba(77,150,255,0.05)] cursor-default">
+                <span className="text-[#4D96FF] font-bold text-xs sm:text-sm tracking-widest uppercase">Meio (Consideração)</span>
+              </div>
+              <div className="w-[70%] mx-auto h-14 bg-[#FFD93D]/10 border border-[#FFD93D]/20 rounded-2xl flex items-center justify-center transition-transform hover:scale-105 duration-300 shadow-[0_0_15px_rgba(255,217,61,0.05)] cursor-default">
+                <span className="text-[#FFD93D] font-bold text-xs sm:text-sm tracking-widest uppercase">Fundo (Decisão)</span>
+              </div>
+              <div className="w-[55%] mx-auto h-14 bg-[#6BCB77]/10 border border-[#6BCB77]/20 rounded-2xl flex items-center justify-center transition-transform hover:scale-105 duration-300 shadow-[0_0_15px_rgba(107,203,119,0.05)] cursor-default">
+                <span className="text-[#6BCB77] font-bold text-[10px] sm:text-xs tracking-widest uppercase text-center leading-tight">Pós-Venda <br className="sm:hidden" /> (Fidelização)</span>
+              </div>
+            </div>
+          </div>
+
+          <InputField label="Campanha" placeholder="Campanha ou ação" value={data.campanha} onChange={handleChange('campanha')} />
+          <div className="mt-8">
+            <div className="hidden sm:grid grid-cols-[120px_1fr_1fr] gap-4 mb-4 px-1">
+              <div className="text-zinc-400 text-xs font-semibold">Etapa</div>
+              <div className="text-zinc-400 text-xs font-semibold">Estratégia</div>
+              <div className="text-zinc-400 text-xs font-semibold">Canais</div>
+            </div>
+            <FunnelInputRow stageName="Topo" stratPlaceholder="MOTIVAÇÃO >>> TRAZER PERCEPÇÃO DO PROBLEMA DO CLIENTE..." stratValue={data.topo} onStratChange={handleChange('topo')} chanValue={data.topoCanais} onChanChange={handleChange('topoCanais')} />
+            <FunnelInputRow stageName="Meio" stratPlaceholder="INTERESSE NA SOLUÇÃO >>> APRESENTAR SOLUÇÃO..." stratValue={data.meio} onStratChange={handleChange('meio')} chanValue={data.meioCanais} onChanChange={handleChange('meioCanais')} />
+            <FunnelInputRow stageName="Fundo" stratPlaceholder="CONVICÇÃO >>> GERAR CONFIANÇA..." stratValue={data.fundo} onStratChange={handleChange('fundo')} chanValue={data.fundoCanais} onChanChange={handleChange('fundoCanais')} />
+            <FunnelInputRow stageName="Pós-Venda" stratPlaceholder="UPSELL + RETENÇÃO + FEEDBACKS" stratValue={data.pos} onStratChange={handleChange('pos')} chanValue={data.posCanais} onChanChange={handleChange('posCanais')} />
+          </div>
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-2 hover:bg-zinc-200 transition-colors">Gerar Funil</button>
+        </ToolLayout>
+      );
+    };
+
+    const ToolMatrizPriorizacao = ({ onBack }) => {
+      const [isGenerated, setIsGenerated] = useState(false);
+      const [data, setData] = useState({ altoBaixo: '', altoAlto: '', baixoBaixo: '', baixoAlto: '' });
+      const handleChange = (field) => (e) => setData({ ...data, [field]: e.target.value });
+
+      const formatAllText = () => `--- MATRIZ DE PRIORIZAÇÃO ---\n\n[ ALTO IMPACTO / BAIXO ESFORÇO ] (Faça Agora)\n${data.altoBaixo || 'N/A'}\n\n[ ALTO IMPACTO / ALTO ESFORÇO ] (Programe)\n${data.altoAlto || 'N/A'}\n\n[ BAIXO IMPACTO / BAIXO ESFORÇO ] (Delegue/Encaixe)\n${data.baixoBaixo || 'N/A'}\n\n[ BAIXO IMPACTO / ALTO ESFORÇO ] (Evite)\n${data.baixoAlto || 'N/A'}`;
+
+      if (isGenerated) {
+        return (
+          <ToolLayout title="Matriz de Priorização" onBack={onBack}>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <ResultCard title="🟢 Alto Impacto / Baixo Esforço (Quick Wins)" content={data.altoBaixo} />
+                <ResultCard title="🟡 Alto Impacto / Alto Esforço (Projetos)" content={data.altoAlto} />
+                <ResultCard title="🔵 Baixo Impacto / Baixo Esforço (Tarefas)" content={data.baixoBaixo} />
+                <ResultCard title="🔴 Baixo Impacto / Alto Esforço (Evitar)" content={data.baixoAlto} />
+             </div>
+             <div className="mt-6">
+                <CopyAllButton textToCopy={formatAllText()} />
+                <button onClick={() => setIsGenerated(false)} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Editar Informações</button>
+             </div>
+          </ToolLayout>
+        );
+      }
+
+      return (
+        <ToolLayout title="Matriz de Priorização" description="Organize tarefas e projetos baseando-se no cruzamento de Impacto e Esforço para descobrir o que fazer primeiro. Você pode fazer esse mapa manual usando post-it e mover conforme achar ideal." onBack={onBack}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+            <InputField label="🟢 Alto Impacto / Baixo Esforço" placeholder="Tarefas com ganho rápido (Quick Wins)..." value={data.altoBaixo} onChange={handleChange('altoBaixo')} multiline />
+            <InputField label="🟡 Alto Impacto / Alto Esforço" placeholder="Projetos estruturais (Planejar)..." value={data.altoAlto} onChange={handleChange('altoAlto')} multiline />
+            <InputField label="🔵 Baixo Impacto / Baixo Esforço" placeholder="Tarefas pequenas (Fazer depois)..." value={data.baixoBaixo} onChange={handleChange('baixoBaixo')} multiline />
+            <InputField label="🔴 Baixo Impacto / Alto Esforço" placeholder="Ingratas (Evitar ou eliminar)..." value={data.baixoAlto} onChange={handleChange('baixoAlto')} multiline />
+          </div>
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-2 hover:bg-zinc-200 transition-colors">Gerar Matriz</button>
+        </ToolLayout>
+      );
+    };
+
+    const ToolCalculadorasVendas = ({ onBack }) => {
+      const [activeTab, setActiveTab] = useState('roi');
+      const [roiData, setRoiData] = useState({ receita: '', custo: '', roi: 0, status: '', isGenerated: false });
+      const [cacData, setCacData] = useState({ custoMarketing: '', novosClientes: '', cac: 0, isGenerated: false });
+
+      const handleRoiChange = (field) => (e) => setRoiData({ ...roiData, [field]: e.target.value });
+      const handleCacChange = (field) => (e) => setCacData({ ...cacData, [field]: e.target.value });
+
+      const calculateROI = () => {
+        const r = parseFloat(roiData.receita.replace(',', '.'));
+        const c = parseFloat(roiData.custo.replace(',', '.'));
+        if (!isNaN(r) && !isNaN(c) && c !== 0) {
+          const roiValue = ((r - c) / c) * 100;
+          let statusInfo = roiValue > 0 ? 'Lucro (Positivo)' : (roiValue < 0 ? 'Prejuízo (Negativo)' : 'Ponto de Equilíbrio (Zero)');
+          setRoiData({ ...roiData, roi: roiValue.toFixed(2), status: statusInfo, isGenerated: true });
+        }
+      };
+
+      const calculateCAC = () => {
+        const custo = parseFloat(cacData.custoMarketing.replace(',', '.'));
+        const clientes = parseInt(cacData.novosClientes.replace(',', '.'), 10);
+        if (!isNaN(custo) && !isNaN(clientes) && clientes > 0) {
+          setCacData({ ...cacData, cac: (custo / clientes).toFixed(2), isGenerated: true });
+        }
+      };
+
+      return (
+        <ToolLayout title={activeTab === 'roi' ? "Calculadora de ROI" : "Calculadora de CAC"} description={activeTab === 'roi' ? "Descubra o Retorno Sobre o Investimento de uma campanha ou projeto." : "Descubra quanto custa trazer cada novo cliente para o seu negócio."} onBack={onBack}>
+          <div className="flex bg-[#1A1A1C] p-1.5 rounded-xl mb-6 border border-white/5">
+            <button onClick={() => setActiveTab('roi')} className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'roi' ? 'bg-[#232325] text-white shadow-sm border border-white/10' : 'text-zinc-500 hover:text-zinc-300'}`}>Cálculo ROI</button>
+            <button onClick={() => setActiveTab('cac')} className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'cac' ? 'bg-[#232325] text-white shadow-sm border border-white/10' : 'text-zinc-500 hover:text-zinc-300'}`}>Cálculo CAC</button>
+          </div>
+
+          {activeTab === 'roi' && (!roiData.isGenerated ? (
+              <>
+                <div className="p-6 bg-sky-500/10 border border-sky-500/20 rounded-2xl mb-8">
+                  <p className="text-sm text-sky-100 leading-relaxed text-center font-medium">A fórmula do ROI é: <br/> <strong className="text-sky-400 mt-2 block tracking-wider">((Receita - Custo) / Custo) x 100</strong></p>
+                </div>
+                <InputField label="Receita Gerada (R$)" placeholder="Ex: 5000.00" value={roiData.receita} onChange={handleRoiChange('receita')} type="number" />
+                <InputField label="Custo do Investimento (R$)" placeholder="Ex: 1000.00" value={roiData.custo} onChange={handleRoiChange('custo')} type="number" />
+                <button onClick={calculateROI} disabled={!roiData.receita || !roiData.custo} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-4 hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Calcular ROI</button>
+              </>
+            ) : (
+              <>
+                <div className="flex gap-4 mb-4">
+                  <div className="flex-1"><ResultCard title="Receita Gerada" content={`R$ ${roiData.receita}`} /></div>
+                  <div className="flex-1"><ResultCard title="Custo" content={`R$ ${roiData.custo}`} /></div>
+                </div>
+                <ResultCard title="Retorno sobre o Investimento (ROI)" content={`${roiData.roi}% \n\nDiagnóstico: ${roiData.status}`} isHighlight={true} />
+                <div className="mt-6">
+                   <CopyAllButton textToCopy={`--- CÁLCULO DE ROI ---\n\nReceita Gerada: R$ ${roiData.receita}\nCusto do Investimento: R$ ${roiData.custo}\n\nResultado: ${roiData.roi}% (${roiData.status})`} />
+                   <button onClick={() => setRoiData({...roiData, isGenerated: false})} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Recalcular</button>
+                </div>
+              </>
+            )
+          )}
+
+          {activeTab === 'cac' && (!cacData.isGenerated ? (
+              <>
+                <div className="p-6 bg-[#B983FF]/10 border border-[#B983FF]/20 rounded-2xl mb-8">
+                  <p className="text-sm text-purple-100 leading-relaxed text-center font-medium">A fórmula do CAC é: <br/> <strong className="text-[#B983FF] mt-2 block tracking-wider">Custo Marketing e Vendas / Novos Clientes</strong></p>
+                </div>
+                <InputField label="Custo Total em Marketing e Vendas (R$)" placeholder="Ex: 2500.00" value={cacData.custoMarketing} onChange={handleCacChange('custoMarketing')} type="number" />
+                <InputField label="Novos Clientes Adquiridos (Qtd)" placeholder="Ex: 50" value={cacData.novosClientes} onChange={handleCacChange('novosClientes')} type="number" />
+                <button onClick={calculateCAC} disabled={!cacData.custoMarketing || !cacData.novosClientes} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-4 hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Calcular CAC</button>
+              </>
+            ) : (
+              <>
+                <div className="flex gap-4 mb-4">
+                  <div className="flex-1"><ResultCard title="Custos (Mkt/Vendas)" content={`R$ ${cacData.custoMarketing}`} /></div>
+                  <div className="flex-1"><ResultCard title="Novos Clientes" content={`${cacData.novosClientes}`} /></div>
+                </div>
+                <ResultCard title="Custo de Aquisição de Clientes (CAC)" content={`R$ ${cacData.cac} por cliente`} isHighlight={true} />
+                <div className="mt-6">
+                   <CopyAllButton textToCopy={`--- CÁLCULO DE CAC ---\n\nCusto Total (Marketing/Vendas): R$ ${cacData.custoMarketing}\nNovos Clientes: ${cacData.novosClientes}\n\nO seu CAC é de: R$ ${cacData.cac} por cliente`} />
+                   <button onClick={() => setCacData({...cacData, isGenerated: false})} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Recalcular</button>
+                </div>
+              </>
+            )
+          )}
+        </ToolLayout>
+      );
+    };
+
+    const ToolSWOT = ({ onBack }) => {
+      const [isGenerated, setIsGenerated] = useState(false);
+      const [data, setData] = useState({ forcas: '', fraquezas: '', oportunidades: '', ameacas: '' });
+      const handleChange = (field) => (e) => setData({ ...data, [field]: e.target.value });
+
+      const formatAllText = () => `--- MATRIZ SWOT ---\n\n[ AMBIENTE INTERNO ]\nForças (Strengths):\n${data.forcas || 'N/A'}\n\nFraquezas (Weaknesses):\n${data.fraquezas || 'N/A'}\n\n[ AMBIENTE EXTERNO ]\nOportunidades (Opportunities):\n${data.oportunidades || 'N/A'}\n\nAmeaças (Threats):\n${data.ameacas || 'N/A'}`;
+
+      if (isGenerated) {
+        return (
+          <ToolLayout title="Matriz SWOT" onBack={onBack}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <ResultCard title="💪 Forças (Strengths)" content={data.forcas} />
+                <ResultCard title="⚠️ Fraquezas (Weaknesses)" content={data.fraquezas} />
+                <ResultCard title="🌟 Oportunidades (Opportunities)" content={data.oportunidades} />
+                <ResultCard title="🔥 Ameaças (Threats)" content={data.ameacas} />
+            </div>
+            <div className="mt-6">
+                <CopyAllButton textToCopy={formatAllText()} />
+                <button onClick={() => setIsGenerated(false)} className="w-full bg-[#1A1A1C] text-white py-4 rounded-xl text-sm font-medium hover:bg-[#232325]">Editar Informações</button>
+            </div>
+          </ToolLayout>
+        );
+      }
+
+      return (
+        <ToolLayout title="Matriz SWOT" description="Identifique os fatores internos e externos que impactam o seu negócio para tomar decisões mais estratégicas." onBack={onBack}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+            <InputField label="💪 Forças (Ambiente Interno)" placeholder="Vantagens competitivas, talentos, marca forte..." value={data.forcas} onChange={handleChange('forcas')} multiline />
+            <InputField label="⚠️ Fraquezas (Ambiente Interno)" placeholder="Desvantagens, custos altos, processos lentos..." value={data.fraquezas} onChange={handleChange('fraquezas')} multiline />
+            <InputField label="🌟 Oportunidades (Ambiente Externo)" placeholder="Tendências, nova lei, falha de concorrente..." value={data.oportunidades} onChange={handleChange('oportunidades')} multiline />
+            <InputField label="🔥 Ameaças (Ambiente Externo)" placeholder="Novos concorrentes, crises, aumento impostos..." value={data.ameacas} onChange={handleChange('ameacas')} multiline />
+          </div>
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-2 hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> Gerar Matriz SWOT
+          </button>
+        </ToolLayout>
+      );
+    };
+
+    // ==========================================
+    // TELAS DE CONCEITOS E DIAGRAMAS (ANATOMIA DO PROMPT)
+    // ==========================================
+
+    const ConceptAnatomiaPrompt = ({ onBack }) => {
+      const descriptionText = "Entenda como a Inteligência Artificial processa as informações e aprenda a estruturar comandos (prompts) perfeitos para obter os melhores resultados.";
+
+      return (
+        <ToolLayout title="Anatomia de um Prompt" description={descriptionText} onBack={onBack}>
+          
+          {/* DIAGRAMA ANATOMIA DE UM PROMPT - CONVERTIDO A PARTIR DO HTML/TAILWIND ENVIADO */}
+          <div className="w-full bg-[#060609] border border-white/5 rounded-2xl py-12 px-4 sm:px-8 mt-6 mb-8 flex items-center justify-center overflow-x-auto relative prompt-diagram">
+            
+            <div className="flex items-center gap-2 min-w-max">
+              
+              {/* LEFT: Central Node (PROMPT) */}
+              <div className="relative w-[280px] h-[280px] flex items-center justify-center">
+                  {/* Dashed Rings */}
+                  <div className="absolute inset-0 rounded-full ring-outer"></div>
+                  <div className="absolute inset-[25px] rounded-full ring-inner"></div>
+                  
+                  {/* Core Circle */}
+                  <div className="relative z-10 w-[140px] h-[140px] rounded-full bg-[#0a0a0f] border border-[#1f1f2e] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(139,92,246,0.1)]">
+                      <i className="ph ph-sparkle text-[#b48ced] text-2xl mb-1"></i>
+                      <h1 className="text-white font-bold tracking-widest text-[13px] uppercase mt-1">Prompt</h1>
+                      <p className="text-[#80808e] text-[11px] text-center mt-1 leading-tight">Entrada do<br />usuário</p>
+                  </div>
+              </div>
+
+              {/* MIDDLE: SVG Branching Lines */}
+              <svg width="60" height="436" className="relative -ml-4 z-0">
+                  {/* Central connecting dot */}
+                  <circle cx="0" cy="218" r="2.5" fill="#4b4b5e" />
+                  
+                  {/* Lines */}
+                  <path d="M 0 218 C 30 218, 30 26, 60 26" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
+                  <path d="M 0 218 C 30 218, 30 90, 60 90" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
+                  <path d="M 0 218 C 30 218, 30 154, 60 154" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
+                  <path d="M 0 218 L 60 218" fill="none" stroke="#2a2a36" strokeWidth="1.5" /> {/* Straight line for center */}
+                  <path d="M 0 218 C 30 218, 30 282, 60 282" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
+                  <path d="M 0 218 C 30 218, 30 346, 60 346" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
+                  <path d="M 0 218 C 30 218, 30 410, 60 410" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
+
+                  {/* End dots */}
+                  <circle cx="60" cy="26" r="2.5" fill="#4b4b5e" />
+                  <circle cx="60" cy="90" r="2.5" fill="#4b4b5e" />
+                  <circle cx="60" cy="154" r="2.5" fill="#4b4b5e" />
+                  <circle cx="60" cy="218" r="2.5" fill="#4b4b5e" />
+                  <circle cx="60" cy="282" r="2.5" fill="#4b4b5e" />
+                  <circle cx="60" cy="346" r="2.5" fill="#4b4b5e" />
+                  <circle cx="60" cy="410" r="2.5" fill="#4b4b5e" />
+              </svg>
+
+              {/* RIGHT: Labels and Descriptions List */}
+              <div className="flex flex-col gap-[12px]">
+                  
+                  {/* 1. OBJETIVO */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-purple flex items-center px-5 gap-4">
+                          <i className="ph ph-target text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase">Objetivo</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Define o que precisa<br />ser feito.</p>
+                          <i className="ph ph-target text-[22px] theme-purple opacity-90"></i>
+                      </div>
+                  </div>
+
+                  {/* 2. CONTEXTO */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-blue flex items-center px-5 gap-4">
+                          <i className="ph ph-user text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase">Contexto</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Explica o cenário, público<br />ou situação.</p>
+                          <i className="ph ph-user text-[22px] theme-blue opacity-90"></i>
+                      </div>
+                  </div>
+
+                  {/* 3. FORMATO */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-cyan flex items-center px-5 gap-4">
+                          <i className="ph ph-list-dashes text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase">Formato</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Indica como a resposta<br />deve ser estruturada.</p>
+                          <i className="ph ph-list-dashes text-[22px] theme-cyan opacity-90"></i>
+                      </div>
+                  </div>
+
+                  {/* 4. TOM DE VOZ */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-green flex items-center px-5 gap-4">
+                          <i className="ph ph-chat-teardrop-text text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase">Tom de Voz</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Define o estilo da<br />comunicação.</p>
+                          <i className="ph ph-chat-teardrop-text text-[22px] theme-green opacity-90"></i>
+                      </div>
+                  </div>
+
+                  {/* 5. RESTRIÇÕES OU REGRAS */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-amber flex items-center px-5 gap-4">
+                          <i className="ph ph-lock-key text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase leading-tight">Restrições<br />Ou Regras</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Limita ou direciona<br />o resultado.</p>
+                          <i className="ph ph-lock-key text-[22px] theme-amber opacity-90"></i>
+                      </div>
+                  </div>
+
+                  {/* 6. REFERÊNCIAS */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-orange flex items-center px-5 gap-4">
+                          <i className="ph ph-file-text text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase">Referências</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Adiciona exemplos, inspirações<br />ou padrões esperados.</p>
+                          <i className="ph ph-file-text text-[22px] theme-orange opacity-90"></i>
+                      </div>
+                  </div>
+
+                  {/* 7. RESULTADO ESPERADO */}
+                  <div className="flex items-center">
+                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-pink flex items-center px-5 gap-4">
+                          <i className="ph ph-check-circle text-[22px]"></i>
+                          <span className="text-[12px] font-bold tracking-widest uppercase leading-tight">Resultado<br />Esperado</span>
+                      </div>
+                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
+                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
+                      </div>
+                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
+                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Alinha a IA ao tipo de entrega<br />e profundidade desejada.</p>
+                          <i className="ph ph-check-circle text-[22px] theme-pink opacity-90"></i>
+                      </div>
+                  </div>
+
+              </div>
+          </div>
+      </div>
+
+    </ToolLayout>
+  );
+};
+
+const ConceptReuniao = ({ onBack }) => {
+  const descriptionText = "Saber o tipo de reunião pro momento certo traz mais assertividade e um bom aproveitamento de tempo. Antes de cada reunião, monte uma pauta em tópicos \"O que vamos falar hoje?\" e leia com todos os envolvidos no início da reunião. Ao final sempre, faça uma lista de \"Próximos passos\" junto com os envolvidos e distribua as responsabilidades.";
+  return (
+    <ToolLayout title="Tipos de Reunião" description={descriptionText} onBack={onBack}>
+      <div className="mt-4">
+        <InfoCard step="1h - 1h30" title="Reunião de Planejamento" content="Esta reunião é dedicada a planejar. Levantar todas as necessidades do projeto, montar cronograma, criar um escopo do projeto e listar desafios." />
+        <InfoCard step="1h - 1h30" title="Reunião de Criação" content="Esse é o momento de criar! Leve ideias com base nos objetivos do projeto e o que foi discutido no planejamento, pesquise referências e jogue ideias na mesa." />
+        <InfoCard step="até 30min." title="Sprint" content="A Sprint é uma reunião (ou ciclo de trabalho) usado para organizar entregas em períodos curtos, com foco em definir prioridades, acompanhar tarefas e acelerar resultados." />
+        <InfoCard step="até 15min." title="Daily" content="Defina a rotina da Reunião Daily com base na necessidade real dos projetos. Pode ser diário, a cada dois dias ou mais espaçado. É uma reunião rápida de alinhamento usada para compartilhar o andamento das tarefas, identificar bloqueios e organizar as próximas ações da equipe." />
+        <InfoCard step="1h-1h30" title="Reunião de Validação e Aprovação" content="Antes de reunir e apresentar para a gestão/cliente, faça uma revisão de 30min com o time interno do projeto para garantir que está tudo pronto! Na hora da reunião de aprovação, você vai revisar entregas, alinhar expectativas e confirmar se o resultado atende aos objetivos antes da aprovação final." />
+        <InfoCard step="45min.-1h30" title="Reunião de Onboarding" content="Aqui você apresenta processos, ferramentas, objetivos e informações essenciais para integrar uma pessoa no time, cliente ou equipe ao projeto de forma clara e organizada. Sempre abra espaço para tirar dúvidas e envie um material de apoio ao final." />
+        <InfoCard step="1h-1h30" title="Reunião Blueprint" content="Essa reunião serve para mapear estratégias, definir estruturas e alinhar o planejamento inicial de um projeto antes da execução. Abra espaço para perguntas para ninguem sair com dúvidas. Um material de apoio ao final também é sempre bem-vindo." />
+      </div>
+    </ToolLayout>
+  );
+};
+
+const ConceptDuploDiamante = ({ onBack }) => {
+  const descriptionText = "O Duplo Diamante é uma metodologia de design e inovação que organiza a criação de soluções em quatro etapas: descobrir problemas, definir oportunidades, desenvolver ideias e entregar soluções. O modelo ajuda equipes a explorar cenários com profundidade antes de tomar decisões e executar entregas.";
+  return (
+    <ToolLayout title="Duplo Diamante" description={descriptionText} onBack={onBack}>
+      
+      {/* DIAGRAMA DO DUPLO DIAMANTE */}
+      <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-12 px-2 sm:px-4 mt-6 mb-8 flex flex-col items-center justify-center">
+        <div className="relative w-full max-w-[450px] h-32 sm:h-48 flex">
+          <div className="absolute top-1/2 left-0 w-full h-px border-b-2 border-dashed border-zinc-700 -translate-y-1/2 z-0"></div>
+          
+          {/* Metade 1: Problema */}
+          <div className="w-1/2 h-full relative">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-28 sm:h-28 rotate-45 border-2 border-[#B983FF] bg-[#B983FF]/10 z-10 transition-transform hover:scale-105 duration-300"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-[#1A1A1C] px-2 py-0.5 rounded shadow border border-white/5">
+              <span className="text-white font-bold text-[10px] sm:text-xs tracking-widest">PROBLEMA</span>
+            </div>
+            <span className="absolute top-0 left-0 w-1/2 text-center text-[#B983FF] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Descobrir</span>
+            <span className="absolute top-0 right-0 w-1/2 text-center text-[#B983FF] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Definir</span>
+            <span className="absolute bottom-0 left-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Divergir</span>
+            <span className="absolute bottom-0 right-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Convergir</span>
+          </div>
+
+          {/* Metade 2: Solução */}
+          <div className="w-1/2 h-full relative">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-28 sm:h-28 rotate-45 border-2 border-[#00BCD4] bg-[#00BCD4]/10 z-10 transition-transform hover:scale-105 duration-300"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-[#1A1A1C] px-2 py-0.5 rounded shadow border border-white/5">
+              <span className="text-white font-bold text-[10px] sm:text-xs tracking-widest">SOLUÇÃO</span>
+            </div>
+            <span className="absolute top-0 left-0 w-1/2 text-center text-[#00BCD4] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Desenvolver</span>
+            <span className="absolute top-0 right-0 w-1/2 text-center text-[#00BCD4] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Entregar</span>
+            <span className="absolute bottom-0 left-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Divergir</span>
+            <span className="absolute bottom-0 right-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Convergir</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <InfoCard step="Diamante 1" title="1. Descobrir (Divergir)" content="Empatia com o usuário, pesquisa de mercado, coleta do máximo de informações sem julgamentos." />
+        <InfoCard step="Diamante 1" title="2. Definir (Convergir)" content="Filtre todas as informações coletadas para definir o problema central que precisa ser resolvido." />
+        <InfoCard step="Diamante 2" title="3. Desenvolver (Divergir)" content="Brainstorming de ideias. Busque criar múltiplas alternativas e soluções possíveis." />
+        <InfoCard step="Diamante 2" title="4. Entregar (Convergir)" content="Selecione as melhores ideias, construa protótipos, teste com usuários reais e faça ajustes." />
+      </div>
+    </ToolLayout>
+  );
+};
+
+const Concept5S = ({ onBack }) => {
+  const descriptionText = "O método 5S ajuda a estruturar produtos digitais com mais clareza, estratégia e consistência. Cada etapa organiza uma parte essencial do projeto, da definição da estrutura até a criação de sistemas escaláveis, facilitando decisões, alinhamentos e entregas mais eficientes.";
+  return (
+    <ToolLayout title="Método 5S" description={descriptionText} onBack={onBack}>
+      <div className="mt-4">
+        <InfoCard step="1º S" title="Skeleton" content="Define a estrutura principal do produto, fluxos e funcionamento básico da solução." />
+        <InfoCard step="2º S" title="Scope" content="Delimita funcionalidades, prioridades e o que fará parte da entrega." />
+        <InfoCard step="3º S" title="Story" content="Constrói a narrativa do produto, contexto de uso e experiência do usuário." />
+        <InfoCard step="4º S" title="Style" content="Estabelece identidade visual, linguagem e direção estética da interface." />
+        <InfoCard step="5º S" title="System" content="Organiza componentes, regras e padrões para garantir escalabilidade e consistência." />
+      </div>
+    </ToolLayout>
+  );
+};
+
+const ConceptPesquisa = ({ onBack }) => {
+  const descriptionText = "Fundamentos essenciais para realizar descobertas profundas e embasadas sobre seu mercado, usuários ou clientes.";
+  return (
+    <ToolLayout title="Pesquisa Estratégica" description={descriptionText} onBack={onBack}>
+      <div className="mt-4">
+        <InfoCard 
+          step="Método" 
+          title="Pesquisa Quantitativa" 
+          content={"A pesquisa quantitativa coleta dados numéricos para identificar padrões, métricas e comportamentos em grande escala. Ela ajuda na tomada de decisões com base em dados mensuráveis e estatísticos.\n\nPode ser usada em:\n• pesquisas de satisfação\n• análise de comportamento de usuários\n• testes A/B\n• métricas de produto e UX\n• validação de funcionalidades\n• análise de mercado e concorrência"} 
+        />
+        <InfoCard 
+          step="Método" 
+          title="Pesquisa Qualitativa" 
+          content={"A pesquisa qualitativa busca entender percepções, opiniões, dores e comportamentos dos usuários de forma mais profunda. Ela ajuda a descobrir motivações e necessidades que números sozinhos não mostram.\n\nPode ser usada em:\n• entrevistas com usuários\n• testes de usabilidade\n• discovery de produto\n• validação de jornadas\n• pesquisas de experiência do usuário\n• entendimento de necessidades e expectativas"} 
+        />
+        <InfoCard 
+          step="Método" 
+          title="Desk Research" 
+          content={"Desk Research é uma pesquisa baseada na coleta e análise de informações já existentes, como artigos, relatórios, tendências, benchmarks e dados de mercado. Ela ajuda a acelerar diagnósticos e gerar insights sem precisar iniciar uma pesquisa do zero.\n\nPode ser usada em:\n• benchmarking de concorrentes\n• análise de tendências\n• estudo de mercado\n• levantamento de referências\n• descoberta de oportunidades\n• apoio estratégico para produtos digitais e negócios"} 
+        />
+      </div>
+    </ToolLayout>
+  );
+};
+
+const ConceptDesignSprint = ({ onBack }) => {
+  return (
+    <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen bg-[#131314] text-zinc-100 pb-20 pt-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        
+        {/* CABEÇALHO */}
+        <header className="border-b border-white/5 pb-16">
+          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1A1A1C] hover:bg-[#232325] transition-colors mr-4 mb-8 border border-white/10">
+            <ArrowLeft className="w-5 h-5 text-zinc-300" />
+          </button>
+          
+          <div className="text-center md:text-left flex flex-col md:flex-row items-center gap-8 justify-between">
+            <div className="flex-1 space-y-6">
+              <div className="inline-flex items-center justify-center p-3 bg-white/5 border border-white/10 rounded-2xl">
+                <svg width="0" height="0" className="absolute">
+                  <defs>
+                    <linearGradient id="ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop stopColor="#B983FF" offset="0%" />
+                      <stop stopColor="#4D96FF" offset="100%" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <Rocket className="w-8 h-8" style={{ stroke: "url(#ai-gradient)" }} />
+              </div>
+              <div>
+                <p className="text-[#B983FF] text-sm font-bold tracking-wider uppercase mb-3 flex items-center gap-2 md:justify-start justify-center">
+                  <Zap className="w-4 h-4" /> FERRAMENTA DE INOVAÇÃO
+                </p>
+                <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4 leading-tight">Design Sprint</h1>
+                <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
+                  Método para testar e lançar um projeto em 5 dias (ou em algumas horas).
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* REQUISITOS (Materiais, Time, Funções) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <DsCard title="Materiais Necessários">
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2">
+                <Clock className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                <span>Cronômetro (timer do celular serve!).</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Zap className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                <span>Mural em branco (lousa, parede, vidro ou Miro).</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <PenTool className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                <span>Canetas (para escrever pouco e desenhar muito).</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <FileText className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                <span>Muitos Post-its (coloridos, de preferência).</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Target className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                <span>Mente aberta e foco total no problema.</span>
+              </li>
+            </ul>
+          </DsCard>
+
+          <DsCard title="Equipe">
+            <p className="mb-4">Monte um time de <strong className="text-white">2 a 6 pessoas</strong>. O segredo aqui é diversidade: perspectivas diferentes criam as soluções mais ricas.</p>
+            <div className="flex flex-wrap gap-2">
+              <DsTag>Designers</DsTag>
+              <DsTag>Estrategistas</DsTag>
+              <DsTag>Financeiro</DsTag>
+              <DsTag>Desenvolvedores</DsTag>
+              <DsTag>Marketing</DsTag>
+            </div>
+          </DsCard>
+
+          <DsCard title="Funções">
+            <ul className="space-y-4">
+              <li>
+                <strong className="text-white block text-sm">Decisor (Product Owner)</strong>
+                <span className="text-xs">Quem bate o martelo. Traz a visão do negócio e toma as decisões finais.</span>
+              </li>
+              <li>
+                <strong className="text-white block text-sm">Facilitador</strong>
+                <span className="text-xs">Controla o tempo, guia os exercícios e evita que o time perca o foco na pauta.</span>
+              </li>
+              <li>
+                <strong className="text-white block text-sm">Especialistas (O Time)</strong>
+                <span className="text-xs">A inteligência coletiva. Trazem conhecimento técnico e a visão real do usuário para a mesa.</span>
+              </li>
+            </ul>
+          </DsCard>
+        </div>
+
+        {/* OS 5 PASSOS */}
+        <DsSection title="O passo a passo para fazer acontecer" color="text-[#B983FF]" bg="bg-[#B983FF]/10">
+          <div className="space-y-4">
+            <DsStepCard number="1" title="Mapear e Alinhar" description="Qual é o verdadeiro desafio? Definam o objetivo principal, mapeiem o cenário atual e garantam que todos estão olhando para o mesmo alvo." icon={Target} colorHex="#B983FF" />
+            <DsStepCard number="2" title="Ideação sem Filtros" description="Hora de colocar o cérebro para funcionar. Esboce, rabisque e crie o máximo de soluções possíveis. Vale tudo, a regra é não julgar (ainda)." icon={Lightbulb} colorHex="#4D96FF" />
+            <DsStepCard number="3" title="Decisão e Roteiro" description="Filtrem as melhores ideias e construam um 'storyboard' visual (passo a passo) de como a solução vai funcionar na prática." icon={PenTool} colorHex="#6BCB77" />
+            <DsStepCard number="4" title="Mão na Massa (Prototipagem)" description="Crie uma 'fachada' da sua solução. Não precisa ser perfeito nem ter código real, só precisa parecer autêntico o suficiente paraconvencer o usuário durante o teste." icon={Monitor} colorHex="#FFD93D" />
+            <DsStepCard number="5" title="Hora de testar e validar" description="Coloque o protótipo na frente de 5 usuários reais. Observe as reações, anote os feedbacks (mesmo os doloridos) e descubra o que funciona antes de gastar com implementação." icon={MessageSquare} colorHex="#FF6B6B" />
+          </div>
+        </DsSection>
+
+        {/* CONCLUSÃO E SKILLS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
+          <div className="space-y-6">
+            <DsCard title="Ajuste" icon={Rocket} className="bg-[#4D96FF]/5 border-[#4D96FF]/20">Analise os feedbacks com o time. O que deu certo? O que falhou miseravelmente? Ajuste, refine a solução e prepare-se para os próximos passos com segurança.</DsCard>
+            <DsCard title="#BetaForever" icon={Repeat} className="bg-[#B983FF]/5 border-[#B983FF]/20">Abrace a cultura do "eterno rascunho". Feito, testado e executado é muito melhor do que "perfeito" e engavetado. Produtos incríveis nunca estão 100% prontos, eles evoluem.</DsCard>
+          </div>
+
+          <DsCard title="Soft Skills Desenvolvidas" icon={Sparkles}>
+            <p className="mb-6">Mais do que um produto testado, a Sprint transforma a cultura do seu time desenvolvendo habilidades essenciais:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Tomada de Decisão</span></div>
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Resolução Complexa</span></div>
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Criatividade</span></div>
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Flexibilidade Cognitiva</span></div>
+            </div>
+          </DsCard>
+        </div>
+
+        {/* FOOTER DA SPRINT */}
+        <div className="py-8 text-center mt-16 flex flex-col items-center justify-center gap-2">
+          <p className="text-zinc-500 text-sm font-medium">Design Sprint Framework</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Main App Component ---
+
+function App() {
+  const [currentView, setCurrentView] = useState('lobby');
+
+  return (
+    <div className="w-full flex flex-col relative min-h-screen">
+      {(() => {
+        switch (currentView) {
+          case '5w2h': return <Tool5W2H onBack={() => setCurrentView('lobby')} />;
+          case 'empatia': return <ToolMapaEmpatia onBack={() => setCurrentView('lobby')} />;
+          case 'csd': return <ToolMatrizCSD onBack={() => setCurrentView('lobby')} />;
+          case 'funil': return <ToolFunilVendas onBack={() => setCurrentView('lobby')} />;
+          case 'reuniao': return <ConceptReuniao onBack={() => setCurrentView('lobby')} />;
+          case 'duploDiamante': return <ConceptDuploDiamante onBack={() => setCurrentView('lobby')} />;
+          case 'metodo5s': return <Concept5S onBack={() => setCurrentView('lobby')} />;
+          case 'pesquisa': return <ConceptPesquisa onBack={() => setCurrentView('lobby')} />;
+          case 'swot': return <ToolSWOT onBack={() => setCurrentView('lobby')} />;
+          case 'priorizacao': return <ToolMatrizPriorizacao onBack={() => setCurrentView('lobby')} />;
+          case 'roi': return <ToolCalculadorasVendas onBack={() => setCurrentView('lobby')} />;
+          case 'designSprint': return <ConceptDesignSprint onBack={() => setCurrentView('lobby')} />;
+          case 'anatomia': return <ConceptAnatomiaPrompt onBack={() => setCurrentView('lobby')} />;
+          default: return (
+            <div className="flex flex-col animate-in fade-in duration-500 w-full max-w-2xl mx-auto pt-16 px-4 pb-10 min-h-screen">
+              
+              {/* Header Inicial */}
+              <div className="mb-2">
+                <svg width="0" height="0" className="absolute">
+                  <defs>
+                    <linearGradient id="ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop stopColor="#B983FF" offset="0%" />
+                      <stop stopColor="#4D96FF" offset="100%" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <Sparkles className="w-8 h-8 mb-5" style={{ stroke: "url(#ai-gradient)" }} />
+                <h1 className="text-3xl sm:text-4xl text-white font-bold tracking-tight mb-3">
+                  Bora começar?
+                </h1>
+                <p className="text-zinc-400 text-sm leading-relaxed max-w-xl mb-8">
+                  Escolha uma das ferramentas abaixo para começar seu planejamento ou mapear dados.
+                </p>
+                <p className="text-zinc-600 text-[10px] font-bold tracking-widest uppercase mb-2">
+                  Ferramentas
+                </p>
+              </div>
+
+              {/* =========================================
+                  SUBCATEGORIAS DE FERRAMENTAS
+                 ========================================= */}
+
+              {/* 1. Planejamento */}
+              <CategoryHeader title="Planejamento" />
+              <div className="flex flex-col gap-3">
+                <CardButton icon={Target} title="5W2H" subtitle="Entenda sua marca ou projeto." colorClass="text-[#B983FF] bg-[#B983FF]/10" onClick={() => setCurrentView('5w2h')} />
+                <CardButton icon={Compass} title="Análise SWOT" subtitle="Forças, Fraquezas, Oportunidades e Ameaças." colorClass="text-[#FF8A65] bg-[#FF8A65]/10" onClick={() => setCurrentView('swot')} />
+                <CardButton icon={Presentation} title="Reunião" subtitle="Entenda os tipos de reuniões para otimizar tempo." colorClass="text-[#B983FF] bg-[#B983FF]/10" onClick={() => setCurrentView('reuniao')} />
+                <CardButton icon={ListChecks} title="Método 5S" subtitle="Para desenvolver projetos digitais." colorClass="text-[#FF8A65] bg-[#FF8A65]/10" onClick={() => setCurrentView('metodo5s')} />
+              </div>
+
+              {/* 2. Cliente & Produto */}
+              <CategoryHeader title="Cliente & Produto" />
+              <div className="flex flex-col gap-3">
+                <CardButton icon={Users} title="Mapa de Empatia" subtitle="Entenda melhor as personas da sua marca." colorClass="text-[#4D96FF] bg-[#4D96FF]/10" onClick={() => setCurrentView('empatia')} />
+                <CardButton icon={Search} title="Pesquisa" subtitle="Métodos para entendimento profundo." colorClass="text-[#4D96FF] bg-[#4D96FF]/10" onClick={() => setCurrentView('pesquisa')} />
+              </div>
+
+              {/* 3. Ideação & Discovery */}
+              <CategoryHeader title="Ideação & Discovery" />
+              <div className="flex flex-col gap-3">
+                <CardButton icon={LayoutGrid} title="Matriz CSD" subtitle="Certezas, Suposições e Dúvidas." colorClass="text-[#6BCB77] bg-[#6BCB77]/10" onClick={() => setCurrentView('csd')} />
+                <CardButton icon={Gem} title="Duplo Diamante" subtitle="Processo de inovação e descoberta." colorClass="text-[#00BCD4] bg-[#00BCD4]/10" onClick={() => setCurrentView('duploDiamante')} />
+                <CardButton icon={BarChart2} title="Matriz de Priorização" subtitle="Organize por Impacto vs Esforço." colorClass="text-[#6BCB77] bg-[#6BCB77]/10" onClick={() => setCurrentView('priorizacao')} />
+              </div>
+
+              {/* 4. Vendas & Growth */}
+              <CategoryHeader title="Vendas & Growth" />
+              <div className="flex flex-col gap-3">
+                <CardButton icon={Filter} title="Funil de Vendas" subtitle="Para atrair e converter." colorClass="text-[#FFD93D] bg-[#FFD93D]/10" onClick={() => setCurrentView('funil')} />
+                <CardButton icon={Calculator} title="Calculadoras ROI e CAC" subtitle="Métricas de investimento e aquisição." colorClass="text-[#FFD93D] bg-[#FFD93D]/10" onClick={() => setCurrentView('roi')} />
+              </div>
+
+              {/* =========================================
+                  DESTAQUE / METODOLOGIA ÁGIL
+                 ========================================= */}
+              
+              <div className="mt-12 mb-4 border-b border-white/10 pb-3">
+                <h2 className="text-zinc-200 font-semibold text-lg">Metodologias Ágeis</h2>
+              </div>
+              
+              <button 
+                onClick={() => setCurrentView('designSprint')}
+                className="flex flex-col md:flex-row items-start md:items-center p-6 bg-gradient-to-r from-[#B983FF]/10 to-[#4D96FF]/10 hover:from-[#B983FF]/20 hover:to-[#4D96FF]/20 border border-[#B983FF]/20 rounded-2xl transition-all duration-300 text-left group w-full mb-4"
+              >
+                <div className="p-4 rounded-2xl bg-[#B983FF]/20 mr-6 mb-4 md:mb-0 group-hover:scale-105 transition-transform flex-shrink-0">
+                  <Rocket className="w-8 h-8 text-[#B983FF]" />
+                </div>
+                <div className="flex-1 pr-4">
+                  <h3 className="text-white font-bold text-[18px] mb-1">Lance um projeto em 5 dias!</h3>
+                  <p className="text-zinc-300 text-[14px] leading-relaxed">Uma metodologia acelerada para testar e validar ideias complexas.</p>
+                </div>
+                <div className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors flex-shrink-0">
+                  <ChevronRight className="w-5 h-5 text-white" />
+                </div>
+              </button>
+
+
+              {/* =========================================
+                  RECURSOS E BLOG
+                 ========================================= */}
+
+              <div className="mt-12 mb-4 border-b border-white/10 pb-3">
+                <h2 className="text-zinc-200 font-semibold text-lg">Recursos e Templates</h2>
+              </div>
+              <div className="flex flex-col">
+                <InternalResourceCard 
+                  icon={LayoutGrid} title="Anatomia de um prompt" subtitle="Entenda como a IA processa e estrutura suas respostas." buttonText="Acessar agora" colorClass="text-[#B983FF] bg-[#B983FF]/10" onClick={() => setCurrentView('anatomia')}
+                />
+                <ExternalResourceCard 
+                  icon={Wand2} title="Gerador de Prompts" subtitle="Crie conteúdos educativos com prompts otimizados usando IA." link="https://www.prismo.space/gen.prompt.edu/" buttonText="Acessar agora" colorClass="text-[#FF6B6B] bg-[#FF6B6B]/10"
+                />
+                <ExternalResourceCard 
+                  icon={BookOpen} title="Biblioteca de Prompts" subtitle="Entenda a anatomia de um prompt e como a IA interpreta arquivos." link="https://glow-dodo-67f.notion.site/Explique-qualquer-coisa-usando-IA-34c610dee79d8069beffc119a07f730c" buttonText="Acessar agora" colorClass="text-[#4ECDC4] bg-[#4ECDC4]/10"
+                />
+              </div>
+
+              <div className="mt-12 mb-4 border-b border-white/10 pb-3">
+                <h2 className="text-zinc-200 font-semibold text-lg">Últimas do Blog</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
+                <BlogPostCard category="Estratégia" title="Como estruturar um funil de vendas de alta conversão" link="#" />
+                <BlogPostCard category="Inteligência Artificial" title="5 prompts de ChatGPT para pesquisa de personas" link="#" />
+                <BlogPostCard category="Gestão" title="Matriz CSD: O guia definitivo para equipas ágeis" link="#" />
+              </div>
+
+              {/* =========================================
+                  RODAPÉ
+                 ========================================= */}
+              <footer className="mt-auto pt-8 border-t border-white/5 flex flex-col items-center justify-center">
+                <div className="flex gap-4 mb-4">
+                  <a href="https://www.instagram.com/cadeobriefing/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#1A1A1C] hover:bg-[#232325] flex items-center justify-center transition-colors text-zinc-400 hover:text-[#B983FF]">
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                  <a href="https://www.linkedin.com/in/karlavizone/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#1A1A1C] hover:bg-[#232325] flex items-center justify-center transition-colors text-zinc-400 hover:text-[#4D96FF]">
+                    <Linkedin className="w-4 h-4" />
+                  </a>
+                </div>
+                <p className="text-zinc-500 text-[11px] font-medium text-center">
+                  Criado por "Cadê o Briefing?" &copy; 2026 Todos os direitos reservados.
+                </p>
+              </footer>
+
+            </div>
+          );
+        }
+      })()}
+    </div>
+  );
+}
+
+// Inicialização do React no arquivo HTML standalone
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+  </script>
+</body>
+</html>
