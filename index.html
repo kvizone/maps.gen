@@ -20,7 +20,7 @@
   <!-- Lucide Icons (React UMD) -->
   <script src="https://unpkg.com/lucide-react@0.284.0/dist/umd/lucide-react.min.js"></script>
 
-  <!-- Phosphor Icons (Para o Diagrama Anatomia do Prompt) -->
+  <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
   <!-- Alias Global para Ícones -->
@@ -36,21 +36,6 @@
     html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    /* Estilos específicos para o diagrama "Anatomia do Prompt" */
-    .prompt-diagram {
-        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-    .box-bg { background-color: #0f1015; }
-    .theme-purple { border-color: rgba(139, 92, 246, 0.3); color: #a78bfa; }
-    .theme-blue { border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; }
-    .theme-cyan { border-color: rgba(6, 182, 212, 0.3); color: #22d3ee; }
-    .theme-green { border-color: rgba(34, 197, 94, 0.3); color: #4ade80; }
-    .theme-amber { border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; }
-    .theme-orange { border-color: rgba(249, 115, 22, 0.3); color: #fb923c; }
-    .theme-pink { border-color: rgba(236, 72, 153, 0.3); color: #f472b6; }
-    .ring-outer { border: 1px dashed rgba(255, 255, 255, 0.05); }
-    .ring-inner { border: 1px dashed rgba(255, 255, 255, 0.15); }
   </style>
 </head>
 <body class="bg-[#131314] text-zinc-100 antialiased min-h-screen">
@@ -60,7 +45,7 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     
-    // Desestruturando Ícones
+    // Desestruturando Ícones Lucide
     const { 
       Target, Users, LayoutGrid, Filter, ArrowLeft, CheckCircle2, Copy,
       Check, Search, Sparkles, Wand2, BookOpen, ExternalLink, ChevronRight,
@@ -87,7 +72,7 @@
       document.body.removeChild(textArea);
     };
 
-    // --- UI Components Reutilizáveis ---
+    // --- UI Components ---
 
     const CardButton = ({ icon: Icon, title, subtitle, onClick, colorClass }) => (
       <button 
@@ -215,7 +200,7 @@
         <div className="bg-[#1A1A1C] rounded-2xl p-6 mb-4 group hover:bg-[#232325] transition-colors border border-transparent hover:border-white/5">
           {step && <span className="text-sky-400 text-[10px] font-bold tracking-wider uppercase mb-2 block">{step}</span>}
           <h4 className="text-zinc-100 font-semibold mb-2 text-[15px]">{title}</h4>
-          <div className="text-zinc-400 text-[14px] leading-relaxed">
+          <div className="text-zinc-400 text-[14px] font-medium leading-relaxed">
             {lines.map((line, i) => (
               <React.Fragment key={i}>
                 {line}
@@ -228,7 +213,7 @@
     };
 
     const ToolLayout = ({ title, description, onBack, children }) => (
-      <div className="flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 max-w-3xl mx-auto w-full pt-4 min-h-screen">
+      <div className="flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 max-w-3xl mx-auto w-full pt-4 pb-20">
         <div className="flex items-center mb-6 px-1">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#232325] transition-colors mr-4 flex-shrink-0">
             <ArrowLeft className="w-5 h-5 text-zinc-300" />
@@ -238,7 +223,7 @@
             {description && <p className="text-zinc-400 text-sm mt-1">{description}</p>}
           </div>
         </div>
-        <div className="flex-1 pb-20 px-1">{children}</div>
+        <div className="flex-1 px-1">{children}</div>
       </div>
     );
 
@@ -327,7 +312,7 @@
       return (
         <ToolLayout title="Gerador 5W2H" description="Organize sua marca e projetos, entenda melhor o que é e o que faz para ter mais assertividade na hora de comunicar." onBack={onBack}>
           
-          {/* DIAGRAMA 5W2H EM HTML */}
+          {/* DIAGRAMA 5W2H */}
           <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-8 px-4 mt-6 mb-8 flex flex-col items-center relative overflow-hidden">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-full bg-[#B983FF]/5 blur-3xl rounded-full pointer-events-none"></div>
             
@@ -356,7 +341,7 @@
           <InputField label="Who (Quem?)" placeholder="Responsável ou equipe" value={data.who} onChange={handleChange('who')} />
           <InputField label="How (Como?)" placeholder="Metodologia ou processo" value={data.how} onChange={handleChange('how')} multiline />
           <InputField label="How Much (Quanto?)" placeholder="Quanto custa, despesas ou média do ticket" value={data.howMuch} onChange={handleChange('howMuch')} />
-          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 mt-4">
+          <button onClick={() => setIsGenerated(true)} className="w-full bg-white text-black py-4 rounded-xl text-sm font-bold mt-4 hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4" /> Gerar Mapa 5W2H
           </button>
         </ToolLayout>
@@ -393,7 +378,7 @@
       return (
         <ToolLayout title="Mapa de Empatia" description="Este recurso detalha o universo do seu público-alvo para facilitar a criação de conexões mais humanas e assertivas." onBack={onBack}>
           
-          {/* DIAGRAMA MAPA DE EMPATIA EM HTML */}
+          {/* DIAGRAMA MAPA DE EMPATIA (Emojis: 📣 e 👀) */}
           <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-8 px-4 mt-6 mb-8 flex flex-col items-center justify-center relative overflow-hidden">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-full bg-[#4D96FF]/5 blur-3xl rounded-full pointer-events-none"></div>
             
@@ -575,7 +560,7 @@
       }
 
       return (
-        <ToolLayout title="Matriz de Priorização" description="Organize tarefas e projetos baseando-se no cruzamento de Impacto e Esforço para descobrir o que fazer primeiro. Você pode fazer esse mapa manual usando post-it e mover conforme achar ideal." onBack={onBack}>
+        <ToolLayout title="Matriz de Priorização" description="Organize tarefas e projetos baseando-se no cruzamento de Impacto e Esforço para descobrir o que fazer primeiro." onBack={onBack}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <InputField label="🟢 Alto Impacto / Baixo Esforço" placeholder="Tarefas com ganho rápido (Quick Wins)..." value={data.altoBaixo} onChange={handleChange('altoBaixo')} multiline />
             <InputField label="🟡 Alto Impacto / Alto Esforço" placeholder="Projetos estruturais (Planejar)..." value={data.altoAlto} onChange={handleChange('altoAlto')} multiline />
@@ -711,430 +696,254 @@
     };
 
     // ==========================================
-    // TELAS DE CONCEITOS E DIAGRAMAS (ANATOMIA DO PROMPT)
+    // TELAS DE CONCEITOS
     // ==========================================
 
-    const ConceptAnatomiaPrompt = ({ onBack }) => {
-      const descriptionText = "Entenda como a Inteligência Artificial processa as informações e aprenda a estruturar comandos (prompts) perfeitos para obter os melhores resultados.";
-
+    const ConceptReuniao = ({ onBack }) => {
+      const descriptionText = "Saber o tipo de reunião pro momento certo traz mais assertividade e um bom aproveitamento de tempo. Antes de cada reunião, monte uma pauta em tópicos \"O que vamos falar hoje?\" e leia com todos os envolvidos no início da reunião. Ao final sempre, faça uma lista de \"Próximos passos\" junto com os envolvidos e distribua as responsabilidades.";
       return (
-        <ToolLayout title="Anatomia de um Prompt" description={descriptionText} onBack={onBack}>
+        <ToolLayout title="Tipos de Reunião" description={descriptionText} onBack={onBack}>
+          <div className="mt-4">
+            <InfoCard step="1h - 1h30" title="Reunião de Planejamento" content="Esta reunião é dedicada a planejar. Levantar todas as necessidades do projeto, montar cronograma, criar um escopo do projeto e listar desafios." />
+            <InfoCard step="1h - 1h30" title="Reunião de Criação" content="Esse é o momento de criar! Leve ideias com base nos objetivos do projeto e o que foi discutido no planejamento, pesquise referências e jogue ideias na mesa." />
+            <InfoCard step="até 30min." title="Sprint" content="A Sprint é uma reunião (ou ciclo de trabalho) usado para organizar entregas em períodos curtos, com foco em definir prioridades, acompanhar tarefas e acelerar resultados." />
+            <InfoCard step="até 15min." title="Daily" content="Defina a rotina da Reunião Daily com base na necessidade real dos projetos. Pode ser diário, a cada dois dias ou mais espaçado. É uma reunião rápida de alinhamento usada para compartilhar o andamento das tarefas, identificar bloqueios e organizar as próximas ações da equipe." />
+            <InfoCard step="1h-1h30" title="Reunião de Validação e Aprovação" content="Antes de reunir e apresentar para a gestão/cliente, faça uma revisão de 30min com o time interno do projeto para garantir que está tudo pronto! Na hora da reunião de aprovação, você vai revisar entregas, alinhar expectativas e confirmar se o resultado atende aos objetivos antes da aprovação final." />
+            <InfoCard step="45min.-1h30" title="Reunião de Onboarding" content="Aqui você apresenta processos, ferramentas, objetivos e informações essenciais para integrar uma pessoa no time, cliente ou equipe ao projeto de forma clara e organizada. Sempre abra espaço para tirar dúvidas e envie um material de apoio ao final." />
+            <InfoCard step="1h-1h30" title="Reunião Blueprint" content="Essa reunião serve para mapear estratégias, definir estruturas e alinhar o planejamento inicial de um projeto antes da execução. Abra espaço para perguntas para ninguem sair com dúvidas. Um material de apoio ao final também é sempre bem-vindo." />
+          </div>
+        </ToolLayout>
+      );
+    };
+
+    const ConceptDuploDiamante = ({ onBack }) => {
+      const descriptionText = "O Duplo Diamante é uma metodologia de design e inovação que organiza a criação de soluções em quatro etapas: descobrir problemas, definir oportunidades, desenvolver ideias e entregar soluções. O modelo ajuda equipes a explorar cenários com profundidade antes de tomar decisões e executar entregas.";
+      return (
+        <ToolLayout title="Duplo Diamante" description={descriptionText} onBack={onBack}>
           
-          {/* DIAGRAMA ANATOMIA DE UM PROMPT - CONVERTIDO A PARTIR DO HTML/TAILWIND ENVIADO */}
-          <div className="w-full bg-[#060609] border border-white/5 rounded-2xl py-12 px-4 sm:px-8 mt-6 mb-8 flex items-center justify-center overflow-x-auto relative prompt-diagram">
-            
-            <div className="flex items-center gap-2 min-w-max">
+          {/* DIAGRAMA DO DUPLO DIAMANTE */}
+          <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-12 px-2 sm:px-4 mt-6 mb-8 flex flex-col items-center justify-center">
+            <div className="relative w-full max-w-[450px] h-32 sm:h-48 flex">
+              <div className="absolute top-1/2 left-0 w-full h-px border-b-2 border-dashed border-zinc-700 -translate-y-1/2 z-0"></div>
               
-              {/* LEFT: Central Node (PROMPT) */}
-              <div className="relative w-[280px] h-[280px] flex items-center justify-center">
-                  {/* Dashed Rings */}
-                  <div className="absolute inset-0 rounded-full ring-outer"></div>
-                  <div className="absolute inset-[25px] rounded-full ring-inner"></div>
-                  
-                  {/* Core Circle */}
-                  <div className="relative z-10 w-[140px] h-[140px] rounded-full bg-[#0a0a0f] border border-[#1f1f2e] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(139,92,246,0.1)]">
-                      <i className="ph ph-sparkle text-[#b48ced] text-2xl mb-1"></i>
-                      <h1 className="text-white font-bold tracking-widest text-[13px] uppercase mt-1">Prompt</h1>
-                      <p className="text-[#80808e] text-[11px] text-center mt-1 leading-tight">Entrada do<br />usuário</p>
-                  </div>
+              {/* Metade 1: Problema */}
+              <div className="w-1/2 h-full relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-28 sm:h-28 rotate-45 border-2 border-[#B983FF] bg-[#B983FF]/10 z-10 transition-transform hover:scale-105 duration-300"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-[#1A1A1C] px-2 py-0.5 rounded shadow border border-white/5">
+                  <span className="text-white font-bold text-[10px] sm:text-xs tracking-widest">PROBLEMA</span>
+                </div>
+                <span className="absolute top-0 left-0 w-1/2 text-center text-[#B983FF] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Descobrir</span>
+                <span className="absolute top-0 right-0 w-1/2 text-center text-[#B983FF] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Definir</span>
+                <span className="absolute bottom-0 left-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Divergir</span>
+                <span className="absolute bottom-0 right-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Convergir</span>
               </div>
 
-              {/* MIDDLE: SVG Branching Lines */}
-              <svg width="60" height="436" className="relative -ml-4 z-0">
-                  {/* Central connecting dot */}
-                  <circle cx="0" cy="218" r="2.5" fill="#4b4b5e" />
-                  
-                  {/* Lines */}
-                  <path d="M 0 218 C 30 218, 30 26, 60 26" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
-                  <path d="M 0 218 C 30 218, 30 90, 60 90" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
-                  <path d="M 0 218 C 30 218, 30 154, 60 154" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
-                  <path d="M 0 218 L 60 218" fill="none" stroke="#2a2a36" strokeWidth="1.5" /> {/* Straight line for center */}
-                  <path d="M 0 218 C 30 218, 30 282, 60 282" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
-                  <path d="M 0 218 C 30 218, 30 346, 60 346" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
-                  <path d="M 0 218 C 30 218, 30 410, 60 410" fill="none" stroke="#2a2a36" strokeWidth="1.5" />
-
-                  {/* End dots */}
-                  <circle cx="60" cy="26" r="2.5" fill="#4b4b5e" />
-                  <circle cx="60" cy="90" r="2.5" fill="#4b4b5e" />
-                  <circle cx="60" cy="154" r="2.5" fill="#4b4b5e" />
-                  <circle cx="60" cy="218" r="2.5" fill="#4b4b5e" />
-                  <circle cx="60" cy="282" r="2.5" fill="#4b4b5e" />
-                  <circle cx="60" cy="346" r="2.5" fill="#4b4b5e" />
-                  <circle cx="60" cy="410" r="2.5" fill="#4b4b5e" />
-              </svg>
-
-              {/* RIGHT: Labels and Descriptions List */}
-              <div className="flex flex-col gap-[12px]">
-                  
-                  {/* 1. OBJETIVO */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-purple flex items-center px-5 gap-4">
-                          <i className="ph ph-target text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase">Objetivo</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Define o que precisa<br />ser feito.</p>
-                          <i className="ph ph-target text-[22px] theme-purple opacity-90"></i>
-                      </div>
-                  </div>
-
-                  {/* 2. CONTEXTO */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-blue flex items-center px-5 gap-4">
-                          <i className="ph ph-user text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase">Contexto</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Explica o cenário, público<br />ou situação.</p>
-                          <i className="ph ph-user text-[22px] theme-blue opacity-90"></i>
-                      </div>
-                  </div>
-
-                  {/* 3. FORMATO */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-cyan flex items-center px-5 gap-4">
-                          <i className="ph ph-list-dashes text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase">Formato</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Indica como a resposta<br />deve ser estruturada.</p>
-                          <i className="ph ph-list-dashes text-[22px] theme-cyan opacity-90"></i>
-                      </div>
-                  </div>
-
-                  {/* 4. TOM DE VOZ */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-green flex items-center px-5 gap-4">
-                          <i className="ph ph-chat-teardrop-text text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase">Tom de Voz</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Define o estilo da<br />comunicação.</p>
-                          <i className="ph ph-chat-teardrop-text text-[22px] theme-green opacity-90"></i>
-                      </div>
-                  </div>
-
-                  {/* 5. RESTRIÇÕES OU REGRAS */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-amber flex items-center px-5 gap-4">
-                          <i className="ph ph-lock-key text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase leading-tight">Restrições<br />Ou Regras</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Limita ou direciona<br />o resultado.</p>
-                          <i className="ph ph-lock-key text-[22px] theme-amber opacity-90"></i>
-                      </div>
-                  </div>
-
-                  {/* 6. REFERÊNCIAS */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-orange flex items-center px-5 gap-4">
-                          <i className="ph ph-file-text text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase">Referências</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Adiciona exemplos, inspirações<br />ou padrões esperados.</p>
-                          <i className="ph ph-file-text text-[22px] theme-orange opacity-90"></i>
-                      </div>
-                  </div>
-
-                  {/* 7. RESULTADO ESPERADO */}
-                  <div className="flex items-center">
-                      <div className="w-[220px] h-[52px] rounded-xl box-bg border theme-pink flex items-center px-5 gap-4">
-                          <i className="ph ph-check-circle text-[22px]"></i>
-                          <span className="text-[12px] font-bold tracking-widest uppercase leading-tight">Resultado<br />Esperado</span>
-                      </div>
-                      <div className="w-[48px] flex items-center justify-between mx-1 relative">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -left-1"></div>
-                          <div className="w-full h-[1px] bg-[#2a2a36]"></div>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#4b4b5e] absolute -right-1"></div>
-                      </div>
-                      <div className="w-[300px] h-[52px] rounded-xl box-bg border border-[#1f1f2e] flex items-center justify-between px-5">
-                          <p className="text-[#a0a0ab] text-[13px] leading-snug">Alinha a IA ao tipo de entrega<br />e profundidade desejada.</p>
-                          <i className="ph ph-check-circle text-[22px] theme-pink opacity-90"></i>
-                      </div>
-                  </div>
-
-              </div>
-          </div>
-      </div>
-
-    </ToolLayout>
-  );
-};
-
-const ConceptReuniao = ({ onBack }) => {
-  const descriptionText = "Saber o tipo de reunião pro momento certo traz mais assertividade e um bom aproveitamento de tempo. Antes de cada reunião, monte uma pauta em tópicos \"O que vamos falar hoje?\" e leia com todos os envolvidos no início da reunião. Ao final sempre, faça uma lista de \"Próximos passos\" junto com os envolvidos e distribua as responsabilidades.";
-  return (
-    <ToolLayout title="Tipos de Reunião" description={descriptionText} onBack={onBack}>
-      <div className="mt-4">
-        <InfoCard step="1h - 1h30" title="Reunião de Planejamento" content="Esta reunião é dedicada a planejar. Levantar todas as necessidades do projeto, montar cronograma, criar um escopo do projeto e listar desafios." />
-        <InfoCard step="1h - 1h30" title="Reunião de Criação" content="Esse é o momento de criar! Leve ideias com base nos objetivos do projeto e o que foi discutido no planejamento, pesquise referências e jogue ideias na mesa." />
-        <InfoCard step="até 30min." title="Sprint" content="A Sprint é uma reunião (ou ciclo de trabalho) usado para organizar entregas em períodos curtos, com foco em definir prioridades, acompanhar tarefas e acelerar resultados." />
-        <InfoCard step="até 15min." title="Daily" content="Defina a rotina da Reunião Daily com base na necessidade real dos projetos. Pode ser diário, a cada dois dias ou mais espaçado. É uma reunião rápida de alinhamento usada para compartilhar o andamento das tarefas, identificar bloqueios e organizar as próximas ações da equipe." />
-        <InfoCard step="1h-1h30" title="Reunião de Validação e Aprovação" content="Antes de reunir e apresentar para a gestão/cliente, faça uma revisão de 30min com o time interno do projeto para garantir que está tudo pronto! Na hora da reunião de aprovação, você vai revisar entregas, alinhar expectativas e confirmar se o resultado atende aos objetivos antes da aprovação final." />
-        <InfoCard step="45min.-1h30" title="Reunião de Onboarding" content="Aqui você apresenta processos, ferramentas, objetivos e informações essenciais para integrar uma pessoa no time, cliente ou equipe ao projeto de forma clara e organizada. Sempre abra espaço para tirar dúvidas e envie um material de apoio ao final." />
-        <InfoCard step="1h-1h30" title="Reunião Blueprint" content="Essa reunião serve para mapear estratégias, definir estruturas e alinhar o planejamento inicial de um projeto antes da execução. Abra espaço para perguntas para ninguem sair com dúvidas. Um material de apoio ao final também é sempre bem-vindo." />
-      </div>
-    </ToolLayout>
-  );
-};
-
-const ConceptDuploDiamante = ({ onBack }) => {
-  const descriptionText = "O Duplo Diamante é uma metodologia de design e inovação que organiza a criação de soluções em quatro etapas: descobrir problemas, definir oportunidades, desenvolver ideias e entregar soluções. O modelo ajuda equipes a explorar cenários com profundidade antes de tomar decisões e executar entregas.";
-  return (
-    <ToolLayout title="Duplo Diamante" description={descriptionText} onBack={onBack}>
-      
-      {/* DIAGRAMA DO DUPLO DIAMANTE */}
-      <div className="w-full bg-[#1A1A1C] border border-white/5 rounded-2xl py-12 px-2 sm:px-4 mt-6 mb-8 flex flex-col items-center justify-center">
-        <div className="relative w-full max-w-[450px] h-32 sm:h-48 flex">
-          <div className="absolute top-1/2 left-0 w-full h-px border-b-2 border-dashed border-zinc-700 -translate-y-1/2 z-0"></div>
-          
-          {/* Metade 1: Problema */}
-          <div className="w-1/2 h-full relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-28 sm:h-28 rotate-45 border-2 border-[#B983FF] bg-[#B983FF]/10 z-10 transition-transform hover:scale-105 duration-300"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-[#1A1A1C] px-2 py-0.5 rounded shadow border border-white/5">
-              <span className="text-white font-bold text-[10px] sm:text-xs tracking-widest">PROBLEMA</span>
-            </div>
-            <span className="absolute top-0 left-0 w-1/2 text-center text-[#B983FF] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Descobrir</span>
-            <span className="absolute top-0 right-0 w-1/2 text-center text-[#B983FF] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Definir</span>
-            <span className="absolute bottom-0 left-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Divergir</span>
-            <span className="absolute bottom-0 right-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Convergir</span>
-          </div>
-
-          {/* Metade 2: Solução */}
-          <div className="w-1/2 h-full relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-28 sm:h-28 rotate-45 border-2 border-[#00BCD4] bg-[#00BCD4]/10 z-10 transition-transform hover:scale-105 duration-300"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-[#1A1A1C] px-2 py-0.5 rounded shadow border border-white/5">
-              <span className="text-white font-bold text-[10px] sm:text-xs tracking-widest">SOLUÇÃO</span>
-            </div>
-            <span className="absolute top-0 left-0 w-1/2 text-center text-[#00BCD4] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Desenvolver</span>
-            <span className="absolute top-0 right-0 w-1/2 text-center text-[#00BCD4] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Entregar</span>
-            <span className="absolute bottom-0 left-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Divergir</span>
-            <span className="absolute bottom-0 right-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Convergir</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <InfoCard step="Diamante 1" title="1. Descobrir (Divergir)" content="Empatia com o usuário, pesquisa de mercado, coleta do máximo de informações sem julgamentos." />
-        <InfoCard step="Diamante 1" title="2. Definir (Convergir)" content="Filtre todas as informações coletadas para definir o problema central que precisa ser resolvido." />
-        <InfoCard step="Diamante 2" title="3. Desenvolver (Divergir)" content="Brainstorming de ideias. Busque criar múltiplas alternativas e soluções possíveis." />
-        <InfoCard step="Diamante 2" title="4. Entregar (Convergir)" content="Selecione as melhores ideias, construa protótipos, teste com usuários reais e faça ajustes." />
-      </div>
-    </ToolLayout>
-  );
-};
-
-const Concept5S = ({ onBack }) => {
-  const descriptionText = "O método 5S ajuda a estruturar produtos digitais com mais clareza, estratégia e consistência. Cada etapa organiza uma parte essencial do projeto, da definição da estrutura até a criação de sistemas escaláveis, facilitando decisões, alinhamentos e entregas mais eficientes.";
-  return (
-    <ToolLayout title="Método 5S" description={descriptionText} onBack={onBack}>
-      <div className="mt-4">
-        <InfoCard step="1º S" title="Skeleton" content="Define a estrutura principal do produto, fluxos e funcionamento básico da solução." />
-        <InfoCard step="2º S" title="Scope" content="Delimita funcionalidades, prioridades e o que fará parte da entrega." />
-        <InfoCard step="3º S" title="Story" content="Constrói a narrativa do produto, contexto de uso e experiência do usuário." />
-        <InfoCard step="4º S" title="Style" content="Estabelece identidade visual, linguagem e direção estética da interface." />
-        <InfoCard step="5º S" title="System" content="Organiza componentes, regras e padrões para garantir escalabilidade e consistência." />
-      </div>
-    </ToolLayout>
-  );
-};
-
-const ConceptPesquisa = ({ onBack }) => {
-  const descriptionText = "Fundamentos essenciais para realizar descobertas profundas e embasadas sobre seu mercado, usuários ou clientes.";
-  return (
-    <ToolLayout title="Pesquisa Estratégica" description={descriptionText} onBack={onBack}>
-      <div className="mt-4">
-        <InfoCard 
-          step="Método" 
-          title="Pesquisa Quantitativa" 
-          content={"A pesquisa quantitativa coleta dados numéricos para identificar padrões, métricas e comportamentos em grande escala. Ela ajuda na tomada de decisões com base em dados mensuráveis e estatísticos.\n\nPode ser usada em:\n• pesquisas de satisfação\n• análise de comportamento de usuários\n• testes A/B\n• métricas de produto e UX\n• validação de funcionalidades\n• análise de mercado e concorrência"} 
-        />
-        <InfoCard 
-          step="Método" 
-          title="Pesquisa Qualitativa" 
-          content={"A pesquisa qualitativa busca entender percepções, opiniões, dores e comportamentos dos usuários de forma mais profunda. Ela ajuda a descobrir motivações e necessidades que números sozinhos não mostram.\n\nPode ser usada em:\n• entrevistas com usuários\n• testes de usabilidade\n• discovery de produto\n• validação de jornadas\n• pesquisas de experiência do usuário\n• entendimento de necessidades e expectativas"} 
-        />
-        <InfoCard 
-          step="Método" 
-          title="Desk Research" 
-          content={"Desk Research é uma pesquisa baseada na coleta e análise de informações já existentes, como artigos, relatórios, tendências, benchmarks e dados de mercado. Ela ajuda a acelerar diagnósticos e gerar insights sem precisar iniciar uma pesquisa do zero.\n\nPode ser usada em:\n• benchmarking de concorrentes\n• análise de tendências\n• estudo de mercado\n• levantamento de referências\n• descoberta de oportunidades\n• apoio estratégico para produtos digitais e negócios"} 
-        />
-      </div>
-    </ToolLayout>
-  );
-};
-
-const ConceptDesignSprint = ({ onBack }) => {
-  return (
-    <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen bg-[#131314] text-zinc-100 pb-20 pt-4" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        
-        {/* CABEÇALHO */}
-        <header className="border-b border-white/5 pb-16">
-          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1A1A1C] hover:bg-[#232325] transition-colors mr-4 mb-8 border border-white/10">
-            <ArrowLeft className="w-5 h-5 text-zinc-300" />
-          </button>
-          
-          <div className="text-center md:text-left flex flex-col md:flex-row items-center gap-8 justify-between">
-            <div className="flex-1 space-y-6">
-              <div className="inline-flex items-center justify-center p-3 bg-white/5 border border-white/10 rounded-2xl">
-                <svg width="0" height="0" className="absolute">
-                  <defs>
-                    <linearGradient id="ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop stopColor="#B983FF" offset="0%" />
-                      <stop stopColor="#4D96FF" offset="100%" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <Rocket className="w-8 h-8" style={{ stroke: "url(#ai-gradient)" }} />
-              </div>
-              <div>
-                <p className="text-[#B983FF] text-sm font-bold tracking-wider uppercase mb-3 flex items-center gap-2 md:justify-start justify-center">
-                  <Zap className="w-4 h-4" /> FERRAMENTA DE INOVAÇÃO
-                </p>
-                <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4 leading-tight">Design Sprint</h1>
-                <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
-                  Método para testar e lançar um projeto em 5 dias (ou em algumas horas).
-                </p>
+              {/* Metade 2: Solução */}
+              <div className="w-1/2 h-full relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-28 sm:h-28 rotate-45 border-2 border-[#00BCD4] bg-[#00BCD4]/10 z-10 transition-transform hover:scale-105 duration-300"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-[#1A1A1C] px-2 py-0.5 rounded shadow border border-white/5">
+                  <span className="text-white font-bold text-[10px] sm:text-xs tracking-widest">SOLUÇÃO</span>
+                </div>
+                <span className="absolute top-0 left-0 w-1/2 text-center text-[#00BCD4] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Desenvolver</span>
+                <span className="absolute top-0 right-0 w-1/2 text-center text-[#00BCD4] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Entregar</span>
+                <span className="absolute bottom-0 left-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Divergir</span>
+                <span className="absolute bottom-0 right-0 w-1/2 text-center text-zinc-500 text-[8px] sm:text-[9px] uppercase tracking-widest">Convergir</span>
               </div>
             </div>
           </div>
-        </header>
 
-        {/* REQUISITOS (Materiais, Time, Funções) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DsCard title="Materiais Necessários">
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <Clock className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
-                <span>Cronômetro (timer do celular serve!).</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Zap className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
-                <span>Mural em branco (lousa, parede, vidro ou Miro).</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <PenTool className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
-                <span>Canetas (para escrever pouco e desenhar muito).</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <FileText className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
-                <span>Muitos Post-its (coloridos, de preferência).</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Target className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
-                <span>Mente aberta e foco total no problema.</span>
-              </li>
-            </ul>
-          </DsCard>
-
-          <DsCard title="Equipe">
-            <p className="mb-4">Monte um time de <strong className="text-white">2 a 6 pessoas</strong>. O segredo aqui é diversidade: perspectivas diferentes criam as soluções mais ricas.</p>
-            <div className="flex flex-wrap gap-2">
-              <DsTag>Designers</DsTag>
-              <DsTag>Estrategistas</DsTag>
-              <DsTag>Financeiro</DsTag>
-              <DsTag>Desenvolvedores</DsTag>
-              <DsTag>Marketing</DsTag>
-            </div>
-          </DsCard>
-
-          <DsCard title="Funções">
-            <ul className="space-y-4">
-              <li>
-                <strong className="text-white block text-sm">Decisor (Product Owner)</strong>
-                <span className="text-xs">Quem bate o martelo. Traz a visão do negócio e toma as decisões finais.</span>
-              </li>
-              <li>
-                <strong className="text-white block text-sm">Facilitador</strong>
-                <span className="text-xs">Controla o tempo, guia os exercícios e evita que o time perca o foco na pauta.</span>
-              </li>
-              <li>
-                <strong className="text-white block text-sm">Especialistas (O Time)</strong>
-                <span className="text-xs">A inteligência coletiva. Trazem conhecimento técnico e a visão real do usuário para a mesa.</span>
-              </li>
-            </ul>
-          </DsCard>
-        </div>
-
-        {/* OS 5 PASSOS */}
-        <DsSection title="O passo a passo para fazer acontecer" color="text-[#B983FF]" bg="bg-[#B983FF]/10">
-          <div className="space-y-4">
-            <DsStepCard number="1" title="Mapear e Alinhar" description="Qual é o verdadeiro desafio? Definam o objetivo principal, mapeiem o cenário atual e garantam que todos estão olhando para o mesmo alvo." icon={Target} colorHex="#B983FF" />
-            <DsStepCard number="2" title="Ideação sem Filtros" description="Hora de colocar o cérebro para funcionar. Esboce, rabisque e crie o máximo de soluções possíveis. Vale tudo, a regra é não julgar (ainda)." icon={Lightbulb} colorHex="#4D96FF" />
-            <DsStepCard number="3" title="Decisão e Roteiro" description="Filtrem as melhores ideias e construam um 'storyboard' visual (passo a passo) de como a solução vai funcionar na prática." icon={PenTool} colorHex="#6BCB77" />
-            <DsStepCard number="4" title="Mão na Massa (Prototipagem)" description="Crie uma 'fachada' da sua solução. Não precisa ser perfeito nem ter código real, só precisa parecer autêntico o suficiente paraconvencer o usuário durante o teste." icon={Monitor} colorHex="#FFD93D" />
-            <DsStepCard number="5" title="Hora de testar e validar" description="Coloque o protótipo na frente de 5 usuários reais. Observe as reações, anote os feedbacks (mesmo os doloridos) e descubra o que funciona antes de gastar com implementação." icon={MessageSquare} colorHex="#FF6B6B" />
+          <div className="mt-4">
+            <InfoCard step="Diamante 1" title="1. Descobrir (Divergir)" content="Empatia com o usuário, pesquisa de mercado, coleta do máximo de informações sem julgamentos." />
+            <InfoCard step="Diamante 1" title="2. Definir (Convergir)" content="Filtre todas as informações coletadas para definir o problema central que precisa ser resolvido." />
+            <InfoCard step="Diamante 2" title="3. Desenvolver (Divergir)" content="Brainstorming de ideias. Busque criar múltiplas alternativas e soluções possíveis." />
+            <InfoCard step="Diamante 2" title="4. Entregar (Convergir)" content="Selecione as melhores ideias, construa protótipos, teste com usuários reais e faça ajustes." />
           </div>
-        </DsSection>
+        </ToolLayout>
+      );
+    };
 
-        {/* CONCLUSÃO E SKILLS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
-          <div className="space-y-6">
-            <DsCard title="Ajuste" icon={Rocket} className="bg-[#4D96FF]/5 border-[#4D96FF]/20">Analise os feedbacks com o time. O que deu certo? O que falhou miseravelmente? Ajuste, refine a solução e prepare-se para os próximos passos com segurança.</DsCard>
-            <DsCard title="#BetaForever" icon={Repeat} className="bg-[#B983FF]/5 border-[#B983FF]/20">Abrace a cultura do "eterno rascunho". Feito, testado e executado é muito melhor do que "perfeito" e engavetado. Produtos incríveis nunca estão 100% prontos, eles evoluem.</DsCard>
+    const Concept5S = ({ onBack }) => {
+      const descriptionText = "O método 5S ajuda a estruturar produtos digitais com mais clareza, estratégia e consistência. Cada etapa organiza uma parte essencial do projeto, da definição da estrutura até a criação de sistemas escaláveis, facilitando decisões, alinhamentos e entregas mais eficientes.";
+      return (
+        <ToolLayout title="Método 5S" description={descriptionText} onBack={onBack}>
+          <div className="mt-4">
+            <InfoCard step="1º S" title="Skeleton" content="Define a estrutura principal do produto, fluxos e funcionamento básico da solução." />
+            <InfoCard step="2º S" title="Scope" content="Delimita funcionalidades, prioridades e o que fará parte da entrega." />
+            <InfoCard step="3º S" title="Story" content="Constrói a narrativa do produto, contexto de uso e experiência do usuário." />
+            <InfoCard step="4º S" title="Style" content="Estabelece identidade visual, linguagem e direção estética da interface." />
+            <InfoCard step="5º S" title="System" content="Organiza componentes, regras e padrões para garantir escalabilidade e consistência." />
           </div>
+        </ToolLayout>
+      );
+    };
 
-          <DsCard title="Soft Skills Desenvolvidas" icon={Sparkles}>
-            <p className="mb-6">Mais do que um produto testado, a Sprint transforma a cultura do seu time desenvolvendo habilidades essenciais:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Tomada de Decisão</span></div>
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Resolução Complexa</span></div>
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Criatividade</span></div>
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Flexibilidade Cognitiva</span></div>
+    const ConceptPesquisa = ({ onBack }) => {
+      const descriptionText = "Fundamentos essenciais para realizar descobertas profundas e embasadas sobre seu mercado, usuários ou clientes.";
+      return (
+        <ToolLayout title="Pesquisa Estratégica" description={descriptionText} onBack={onBack}>
+          <div className="mt-4">
+            <InfoCard 
+              step="Método" 
+              title="Pesquisa Quantitativa" 
+              content={"A pesquisa quantitativa coleta dados numéricos para identificar padrões, métricas e comportamentos em grande escala. Ela ajuda na tomada de decisões com base em dados mensuráveis e estatísticos.\n\nPode ser usada em:\n• pesquisas de satisfação\n• análise de comportamento de usuários\n• testes A/B\n• métricas de produto e UX\n• validação de funcionalidades\n• análise de mercado e concorrência"} 
+            />
+            <InfoCard 
+              step="Método" 
+              title="Pesquisa Qualitativa" 
+              content={"A pesquisa qualitativa busca entender percepções, opiniões, dores e comportamentos dos usuários de forma mais profunda. Ela ajuda a descobrir motivações e necessidades que números sozinhos não mostram.\n\nPode ser usada em:\n• entrevistas com usuários\n• testes de usabilidade\n• discovery de produto\n• validação de jornadas\n• pesquisas de experiência do usuário\n• entendimento de necessidades e expectativas"} 
+            />
+            <InfoCard 
+              step="Método" 
+              title="Desk Research" 
+              content={"Desk Research é uma pesquisa baseada na coleta e análise de informações já existentes, como artigos, relatórios, tendências, benchmarks e dados de mercado. Ela ajuda a acelerar diagnósticos e gerar insights sem precisar iniciar uma pesquisa do zero.\n\nPode ser usada em:\n• benchmarking de concorrentes\n• análise de tendências\n• estudo de mercado\n• levantamento de referências\n• descoberta de oportunidades\n• apoio estratégico para produtos digitais e negócios"} 
+            />
+          </div>
+        </ToolLayout>
+      );
+    };
+
+    const ConceptDesignSprint = ({ onBack }) => {
+      return (
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen bg-[#131314] text-zinc-100 pb-20 pt-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            
+            {/* CABEÇALHO */}
+            <header className="border-b border-white/5 pb-16">
+              <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1A1A1C] hover:bg-[#232325] transition-colors mr-4 mb-8 border border-white/10">
+                <ArrowLeft className="w-5 h-5 text-zinc-300" />
+              </button>
+              
+              <div className="text-center md:text-left flex flex-col md:flex-row items-center gap-8 justify-between">
+                <div className="flex-1 space-y-6">
+                  <div className="inline-flex items-center justify-center p-3 bg-white/5 border border-white/10 rounded-2xl">
+                    <svg width="0" height="0" className="absolute">
+                      <defs>
+                        <linearGradient id="ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop stopColor="#B983FF" offset="0%" />
+                          <stop stopColor="#4D96FF" offset="100%" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <Rocket className="w-8 h-8" style={{ stroke: "url(#ai-gradient)" }} />
+                  </div>
+                  <div>
+                    <p className="text-[#B983FF] text-sm font-bold tracking-wider uppercase mb-3 flex items-center gap-2 md:justify-start justify-center">
+                      <Zap className="w-4 h-4" /> FERRAMENTA DE INOVAÇÃO
+                    </p>
+                    <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4 leading-tight">Design Sprint</h1>
+                    <p className="text-zinc-400 text-lg max-w-2xl leading-relaxed">
+                      Método para testar e lançar um projeto em 5 dias (ou em algumas horas).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            {/* REQUISITOS (Materiais, Time, Funções) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <DsCard title="Materiais Necessários">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Clock className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                    <span>Cronômetro (timer do celular serve!).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Zap className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                    <span>Mural em branco (lousa, parede, vidro ou Miro).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <PenTool className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                    <span>Canetas (para escrever pouco e desenhar muito).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <FileText className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                    <span>Muitos Post-its (coloridos, de preferência).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Target className="w-4 h-4 text-[#FFD93D] mt-0.5 shrink-0" />
+                    <span>Mente aberta e foco total no problema.</span>
+                  </li>
+                </ul>
+              </DsCard>
+
+              <DsCard title="Equipe">
+                <p className="mb-4">Monte um time de <strong className="text-white">2 a 6 pessoas</strong>. O segredo aqui é diversidade: perspectivas diferentes criam as soluções mais ricas.</p>
+                <div className="flex flex-wrap gap-2">
+                  <DsTag>Designers</DsTag>
+                  <DsTag>Estrategistas</DsTag>
+                  <DsTag>Financeiro</DsTag>
+                  <DsTag>Desenvolvedores</DsTag>
+                  <DsTag>Marketing</DsTag>
+                </div>
+              </DsCard>
+
+              <DsCard title="Funções">
+                <ul className="space-y-4">
+                  <li>
+                    <strong className="text-white block text-sm">Decisor (Product Owner)</strong>
+                    <span className="text-xs">Quem bate o martelo. Traz a visão do negócio e toma as decisões finais.</span>
+                  </li>
+                  <li>
+                    <strong className="text-white block text-sm">Facilitador</strong>
+                    <span className="text-xs">Controla o tempo, guia os exercícios e evita que o time perca o foco na pauta.</span>
+                  </li>
+                  <li>
+                    <strong className="text-white block text-sm">Especialistas (O Time)</strong>
+                    <span className="text-xs">A inteligência coletiva. Trazem conhecimento técnico e a visão real do usuário para a mesa.</span>
+                  </li>
+                </ul>
+              </DsCard>
             </div>
-          </DsCard>
+
+            {/* OS 5 PASSOS */}
+            <DsSection title="O passo a passo para fazer acontecer" color="text-[#B983FF]" bg="bg-[#B983FF]/10">
+              <div className="space-y-4">
+                <DsStepCard number="1" title="Mapear e Alinhar" description="Qual é o verdadeiro desafio? Definam o objetivo principal, mapeiem o cenário atual e garantam que todos estão olhando para o mesmo alvo." icon={Target} colorHex="#B983FF" />
+                <DsStepCard number="2" title="Ideação sem Filtros" description="Hora de colocar o cérebro para funcionar. Esboce, rabisque e crie o máximo de soluções possíveis. Vale tudo, a regra é não julgar (ainda)." icon={Lightbulb} colorHex="#4D96FF" />
+                <DsStepCard number="3" title="Decisão e Roteiro" description="Filtrem as melhores ideias e construam um 'storyboard' visual (passo a passo) de como a solução vai funcionar na prática." icon={PenTool} colorHex="#6BCB77" />
+                <DsStepCard number="4" title="Mão na Massa (Prototipagem)" description="Crie uma 'fachada' da sua solução. Não precisa ser perfeito nem ter código real, só precisa parecer autêntico o suficiente paraconvencer o usuário durante o teste." icon={Monitor} colorHex="#FFD93D" />
+                <DsStepCard number="5" title="Hora de testar e validar" description="Coloque o protótipo na frente de 5 usuários reais. Observe as reações, anote os feedbacks (mesmo os doloridos) e descubra o que funciona antes de gastar com implementação." icon={MessageSquare} colorHex="#FF6B6B" />
+              </div>
+            </DsSection>
+
+            {/* CONCLUSÃO E SKILLS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
+              <div className="space-y-6">
+                <DsCard title="Ajuste" icon={Rocket} className="bg-[#4D96FF]/5 border-[#4D96FF]/20">Analise os feedbacks com o time. O que deu certo? O que falhou miseravelmente? Ajuste, refine a solução e prepare-se para os próximos passos com segurança.</DsCard>
+                <DsCard title="#BetaForever" icon={Repeat} className="bg-[#B983FF]/5 border-[#B983FF]/20">Abrace a cultura do "eterno rascunho". Feito, testado e executado é muito melhor do que "perfeito" e engavetado. Produtos incríveis nunca estão 100% prontos, eles evoluem.</DsCard>
+              </div>
+
+              <DsCard title="Soft Skills Desenvolvidas" icon={Sparkles}>
+                <p className="mb-6">Mais do que um produto testado, a Sprint transforma a cultura do seu time desenvolvendo habilidades essenciais:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Tomada de Decisão</span></div>
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Resolução Complexa</span></div>
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Criatividade</span></div>
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><CheckCircle2 className="w-4 h-4 text-[#6BCB77]" /><span className="text-sm text-zinc-200">Flexibilidade Cognitiva</span></div>
+                </div>
+              </DsCard>
+            </div>
+
+            {/* FOOTER DA SPRINT */}
+            <div className="py-8 text-center mt-16 flex flex-col items-center justify-center gap-2">
+              <p className="text-zinc-500 text-sm font-medium">Design Sprint Framework</p>
+            </div>
+          </div>
         </div>
+      );
+    };
 
-        {/* FOOTER DA SPRINT */}
-        <div className="py-8 text-center mt-16 flex flex-col items-center justify-center gap-2">
-          <p className="text-zinc-500 text-sm font-medium">Design Sprint Framework</p>
-        </div>
-      </div>
-    </div>
-  );
-};
+    // --- Main App Component ---
 
-// --- Main App Component ---
+    function App() {
+      const [currentView, setCurrentView] = useState('lobby');
 
-function App() {
-  const [currentView, setCurrentView] = useState('lobby');
+      // A barra de rolagem sempre começará no topo ao mudar de tela
+      useEffect(() => {
+        window.scrollTo(0, 0);
+      }, [currentView]);
 
-  return (
-    <div className="w-full flex flex-col relative min-h-screen">
-      {(() => {
+      const renderView = () => {
         switch (currentView) {
           case '5w2h': return <Tool5W2H onBack={() => setCurrentView('lobby')} />;
           case 'empatia': return <ToolMapaEmpatia onBack={() => setCurrentView('lobby')} />;
@@ -1148,7 +957,6 @@ function App() {
           case 'priorizacao': return <ToolMatrizPriorizacao onBack={() => setCurrentView('lobby')} />;
           case 'roi': return <ToolCalculadorasVendas onBack={() => setCurrentView('lobby')} />;
           case 'designSprint': return <ConceptDesignSprint onBack={() => setCurrentView('lobby')} />;
-          case 'anatomia': return <ConceptAnatomiaPrompt onBack={() => setCurrentView('lobby')} />;
           default: return (
             <div className="flex flex-col animate-in fade-in duration-500 w-full max-w-2xl mx-auto pt-16 px-4 pb-10 min-h-screen">
               
@@ -1242,14 +1050,8 @@ function App() {
                 <h2 className="text-zinc-200 font-semibold text-lg">Recursos e Templates</h2>
               </div>
               <div className="flex flex-col">
-                <InternalResourceCard 
-                  icon={LayoutGrid} title="Anatomia de um prompt" subtitle="Entenda como a IA processa e estrutura suas respostas." buttonText="Acessar agora" colorClass="text-[#B983FF] bg-[#B983FF]/10" onClick={() => setCurrentView('anatomia')}
-                />
                 <ExternalResourceCard 
-                  icon={Wand2} title="Gerador de Prompts" subtitle="Crie conteúdos educativos com prompts otimizados usando IA." link="https://www.prismo.space/gen.prompt.edu/" buttonText="Acessar agora" colorClass="text-[#FF6B6B] bg-[#FF6B6B]/10"
-                />
-                <ExternalResourceCard 
-                  icon={BookOpen} title="Biblioteca de Prompts" subtitle="Entenda a anatomia de um prompt e como a IA interpreta arquivos." link="https://glow-dodo-67f.notion.site/Explique-qualquer-coisa-usando-IA-34c610dee79d8069beffc119a07f730c" buttonText="Acessar agora" colorClass="text-[#4ECDC4] bg-[#4ECDC4]/10"
+                  icon={Wand2} title="Gerador de Prompts" subtitle="Entenda a anatomia de um prompt e crie conteúdos com IA." link="https://www.prismo.space/prompt.antm" buttonText="Acessar agora" colorClass="text-[#FF6B6B] bg-[#FF6B6B]/10"
                 />
               </div>
 
@@ -1282,14 +1084,18 @@ function App() {
             </div>
           );
         }
-      })()}
-    </div>
-  );
-}
+      };
 
-// Inicialização do React no arquivo HTML standalone
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+      return (
+        <div className="w-full flex flex-col relative min-h-screen">
+          {renderView()}
+        </div>
+      );
+    }
+
+    // Inicialização do React no arquivo HTML standalone
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
